@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Phone, Globe, MapPin, Star, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface Listing {
@@ -53,7 +53,7 @@ function ListingCard({ listing }: { listing: Listing }) {
 
     setSaving(true);
     if (favorited) {
-      await supabase
+      await getSupabase()
         .from('favorites')
         .delete()
         .eq('user_id', user.id)
@@ -61,7 +61,7 @@ function ListingCard({ listing }: { listing: Listing }) {
       setFavorited(false);
       toast('Removed from favorites');
     } else {
-      await supabase
+      await getSupabase()
         .from('favorites')
         .insert({ user_id: user.id, listing_id: listing.id });
       setFavorited(true);

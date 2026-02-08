@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import { SubCategoryList } from './sub-category-list';
 import Link from 'next/link';
@@ -7,7 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 async function getCategory(slug: string) {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('categories')
     .select('*')
     .eq('slug', slug)
@@ -17,7 +17,7 @@ async function getCategory(slug: string) {
 }
 
 async function getSubCategories(parentId: string) {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('categories')
     .select('*')
     .eq('parent_id', parentId)

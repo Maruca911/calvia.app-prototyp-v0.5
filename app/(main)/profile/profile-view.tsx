@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -48,7 +48,7 @@ export function ProfileView({ user }: { user: User }) {
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
 
   const loadProfile = useCallback(async () => {
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -57,7 +57,7 @@ export function ProfileView({ user }: { user: User }) {
   }, [user.id]);
 
   const loadFavorites = useCallback(async () => {
-    const { data } = await supabase
+    const { data } = await getSupabase()
       .from('favorites')
       .select('id, listing_id, listings(id, name, address, description)')
       .eq('user_id', user.id)
@@ -71,7 +71,7 @@ export function ProfileView({ user }: { user: User }) {
   }, [loadProfile, loadFavorites]);
 
   const removeFavorite = async (favoriteId: string) => {
-    await supabase.from('favorites').delete().eq('id', favoriteId);
+    await getSupabase().from('favorites').delete().eq('id', favoriteId);
     setFavorites((prev) => prev.filter((f) => f.id !== favoriteId));
     toast('Removed from favorites');
   };

@@ -1,10 +1,10 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { LifestyleCategories } from './lifestyle-categories';
 
 export const dynamic = 'force-dynamic';
 
 async function getCategories() {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('categories')
     .select('*')
     .is('parent_id', null)

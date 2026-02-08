@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { HeroSection } from './hero-section';
 import { BlogGrid } from './blog-grid';
 import { CategoryQuickAccess } from './category-quick-access';
@@ -7,7 +7,7 @@ import { FeatureCards } from './feature-cards';
 export const dynamic = 'force-dynamic';
 
 async function getBlogPosts() {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('blog_posts')
     .select('*')
     .order('published_at', { ascending: false })
@@ -16,7 +16,7 @@ async function getBlogPosts() {
 }
 
 async function getCategories() {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('categories')
     .select('*')
     .is('parent_id', null)
