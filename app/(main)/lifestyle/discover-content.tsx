@@ -5,7 +5,6 @@ import { Search, X, MapPin, Star, Phone, Globe, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LifestyleCategories } from './lifestyle-categories';
-import Link from 'next/link';
 
 interface Category {
   id: string;
@@ -27,6 +26,7 @@ interface Listing {
   is_featured: boolean;
   social_media: { instagram?: string; facebook?: string } | null;
   menu_url: string;
+  tags: string[] | null;
   categories: {
     name: string;
     slug: string;
@@ -40,6 +40,73 @@ interface DiscoverContentProps {
   neighborhoods: string[];
 }
 
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  'hair': ['hairdresser', 'salon', 'colouring', 'balayage', 'barber', 'stylist'],
+  'hairdresser': ['hair', 'salon', 'colouring', 'balayage', 'cuts'],
+  'eat': ['restaurant', 'dining', 'food', 'cuisine'],
+  'food': ['restaurant', 'dining', 'eat', 'cuisine'],
+  'boat': ['yacht', 'sailing', 'charter', 'marina', 'RIB'],
+  'yacht': ['boat', 'sailing', 'charter', 'marina'],
+  'swim': ['pool', 'beach', 'watersports'],
+  'surf': ['efoil', 'fliteboard', 'watersports', 'SUP'],
+  'fly': ['efoil', 'fliteboard', 'parasailing'],
+  'lawyer': ['legal', 'law', 'abogados', 'solicitor', 'conveyancing'],
+  'legal': ['lawyer', 'law', 'abogados', 'notary'],
+  'tax': ['accounting', 'fiscal', 'beckham-law', 'tax-advisor'],
+  'doctor': ['medical', 'health', 'clinic', 'dentist'],
+  'gym': ['fitness', 'crossfit', 'workout', 'training'],
+  'clean': ['cleaning', 'domestic', 'maid', 'housekeeping'],
+  'fix': ['repair', 'handyman', 'plumber', 'electrician', 'maintenance'],
+  'school': ['education', 'college', 'academy', 'learning'],
+  'shop': ['shopping', 'boutique', 'store', 'supermarket'],
+  'spa': ['wellness', 'massage', 'treatment', 'relaxation'],
+  'coffee': ['cafe', 'brunch', 'cappuccino', 'pastries'],
+  'brunch': ['cafe', 'coffee', 'breakfast', 'morning'],
+  'sushi': ['japanese', 'sashimi', 'omakase'],
+  'pizza': ['italian', 'pasta', 'trattoria'],
+  'steak': ['grill', 'steakhouse', 'argentine', 'meat'],
+  'beach': ['beachfront', 'beach-club', 'seaside', 'cove'],
+  'club': ['beach-club', 'membership', 'social'],
+  'rent': ['rental', 'hire', 'charter'],
+  'dive': ['diving', 'snorkelling', 'PADI', 'underwater'],
+  'padel': ['courts', 'racquet', 'tennis'],
+  'tennis': ['courts', 'racquet', 'academy'],
+  'pilates': ['reformer', 'barre', 'studio', 'fitness'],
+  'pool': ['swimming', 'maintenance', 'cleaning'],
+  'garden': ['landscaping', 'gardening', 'lawn', 'plants'],
+  'property': ['real-estate', 'villa', 'apartment', 'house'],
+  'home': ['villa', 'apartment', 'house', 'property'],
+};
+
+function scoreResult(listing: Listing, terms: string[]): number {
+  let score = 0;
+  const name = listing.name.toLowerCase();
+  const desc = (listing.description || '').toLowerCase();
+  const catName = listing.categories.name.toLowerCase();
+  const tags = (listing.tags || []).map(t => t.toLowerCase());
+  const neighborhood = (listing.neighborhood || '').toLowerCase();
+
+  for (const term of terms) {
+    if (name.includes(term)) score += 10;
+    if (catName.includes(term)) score += 6;
+    if (tags.some(t => t.includes(term))) score += 5;
+    if (neighborhood.includes(term)) score += 4;
+    if (desc.includes(term)) score += 2;
+
+    const synonyms = SEARCH_SYNONYMS[term] || [];
+    for (const syn of synonyms) {
+      if (name.includes(syn)) score += 4;
+      if (catName.includes(syn)) score += 3;
+      if (tags.some(t => t.includes(syn))) score += 3;
+      if (desc.includes(syn)) score += 1;
+    }
+  }
+
+  if (listing.is_featured) score += 2;
+
+  return score;
+}
+
 export function DiscoverContent({ categories, listings, neighborhoods }: DiscoverContentProps) {
   const [query, setQuery] = useState('');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
@@ -49,20 +116,25 @@ export function DiscoverContent({ categories, listings, neighborhoods }: Discove
   const filteredListings = useMemo(() => {
     if (!isSearching) return [];
 
-    return listings.filter((listing) => {
-      const matchesQuery =
-        query.length < 2 ||
-        listing.name.toLowerCase().includes(query.toLowerCase()) ||
-        listing.description?.toLowerCase().includes(query.toLowerCase()) ||
-        listing.categories.name.toLowerCase().includes(query.toLowerCase()) ||
-        listing.neighborhood?.toLowerCase().includes(query.toLowerCase()) ||
-        listing.address?.toLowerCase().includes(query.toLowerCase());
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
 
-      const matchesNeighborhood =
-        !selectedNeighborhood || listing.neighborhood === selectedNeighborhood;
+    const scored = listings
+      .map((listing) => {
+        const matchesNeighborhood =
+          !selectedNeighborhood || listing.neighborhood === selectedNeighborhood;
+        if (!matchesNeighborhood) return null;
 
-      return matchesQuery && matchesNeighborhood;
-    });
+        if (terms.length === 0) return { listing, score: listing.is_featured ? 2 : 0 };
+
+        const s = scoreResult(listing, terms);
+        if (s <= 0) return null;
+        return { listing, score: s };
+      })
+      .filter(Boolean) as { listing: Listing; score: number }[];
+
+    scored.sort((a, b) => b.score - a.score);
+
+    return scored.map(s => s.listing);
   }, [query, selectedNeighborhood, listings, isSearching]);
 
   const clearSearch = () => {
