@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { LifestyleCategories } from './lifestyle-categories';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getCategories() {
   const { data } = await supabase

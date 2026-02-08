@@ -4,7 +4,7 @@ import { BlogGrid } from './blog-grid';
 import { CategoryQuickAccess } from './category-quick-access';
 import { FeatureCards } from './feature-cards';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getBlogPosts() {
   const { data } = await supabase

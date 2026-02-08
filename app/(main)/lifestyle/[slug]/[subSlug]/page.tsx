@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { ListingsView } from './listings-view';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getSubCategory(slug: string) {
   const { data } = await supabase
