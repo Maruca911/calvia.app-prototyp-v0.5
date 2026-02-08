@@ -107,55 +107,55 @@ export function ProfileView({ user }: { user: User }) {
     .slice(0, 2);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-cream-200 shadow-sm">
-        <div className="w-14 h-14 rounded-full bg-ocean-500 flex items-center justify-center text-white font-semibold text-body">
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 p-5 bg-white rounded-xl border border-cream-200 shadow-sm">
+        <div className="w-16 h-16 rounded-full bg-ocean-500 flex items-center justify-center text-sage-100 font-semibold text-heading-sm">
           {initials || 'C'}
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-body font-semibold text-foreground truncate">
+          <h2 className="text-[19px] font-semibold text-foreground truncate">
             {profile?.full_name || 'Calvia Member'}
           </h2>
-          <p className="text-body-sm text-muted-foreground truncate">
+          <p className="text-body text-muted-foreground truncate">
             {user.email}
           </p>
         </div>
       </div>
 
       <section className="space-y-3">
-        <h3 className="text-body font-semibold text-foreground flex items-center gap-2">
-          <Heart size={18} className="text-sage-500" />
-          My Favorites
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <Heart size={20} className="text-sage-500" />
+          My Favourites
         </h3>
         {favorites.length === 0 ? (
-          <div className="p-5 bg-white rounded-xl border border-cream-200 text-center">
-            <p className="text-body-sm text-muted-foreground">
-              No favorites yet. Explore Lifestyle to save your top picks.
+          <div className="p-6 bg-white rounded-xl border border-cream-200 text-center">
+            <p className="text-body text-muted-foreground">
+              No favourites yet. Explore Lifestyle to save your top picks.
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {favorites.map((fav) => (
               <div
                 key={fav.id}
-                className="flex items-center gap-3 p-3 bg-white rounded-xl border border-cream-200"
+                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-cream-200"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-body-sm font-semibold text-foreground truncate">
+                  <p className="text-body font-semibold text-foreground truncate">
                     {fav.listings?.name}
                   </p>
                   {fav.listings?.address && (
-                    <p className="text-[13px] text-muted-foreground flex items-center gap-1">
-                      <MapPin size={11} />
+                    <p className="text-[15px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                      <MapPin size={13} />
                       {fav.listings.address}
                     </p>
                   )}
                 </div>
                 <button
                   onClick={() => removeFavorite(fav.id)}
-                  className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                  className="p-3 text-muted-foreground hover:text-destructive transition-colors"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={20} />
                 </button>
               </div>
             ))}
@@ -164,28 +164,28 @@ export function ProfileView({ user }: { user: User }) {
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-body font-semibold text-foreground flex items-center gap-2">
-          <Trophy size={18} className="text-sage-500" />
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <Trophy size={20} className="text-sage-500" />
           Loyalty Program
         </h3>
         <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
-          <div className="absolute top-3 right-3 flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-cream-200 px-2 py-0.5 rounded-full z-10">
-            <Lock size={9} />
+          <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
+            <Lock size={10} />
             Coming Soon
           </div>
           <div className="space-y-4 opacity-60">
             <div className="flex items-center justify-between">
-              <span className="text-body-sm font-semibold text-ocean-500">
+              <span className="text-body font-semibold text-ocean-500">
                 {profile?.loyalty_tier || 'Silver'} Member
               </span>
-              <span className="text-body-sm text-muted-foreground">
+              <span className="text-body text-muted-foreground">
                 {profile?.loyalty_points || 0} pts
               </span>
             </div>
-            <div className="h-2 bg-cream-200 rounded-full overflow-hidden">
+            <div className="h-3 bg-cream-200 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-sage-400 to-sage-300 rounded-full w-1/4" />
             </div>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[15px] text-muted-foreground">
               750 points to Gold status
             </p>
           </div>
@@ -193,30 +193,27 @@ export function ProfileView({ user }: { user: User }) {
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-body font-semibold text-foreground flex items-center gap-2">
-          <Share2 size={18} className="text-sage-500" />
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <Share2 size={20} className="text-sage-500" />
           Refer a Friend
         </h3>
         <div className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm">
-          <p className="text-body-sm text-muted-foreground mb-3">
+          <p className="text-body text-muted-foreground mb-4">
             Share your code and earn rewards when friends join Calvia.
           </p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-cream-100 rounded-lg px-4 py-3 font-mono text-body-sm font-semibold text-ocean-500 tracking-wider text-center">
+          <div className="flex items-center gap-2.5">
+            <div className="flex-1 bg-cream-100 rounded-lg px-4 py-3.5 font-mono text-body font-semibold text-ocean-500 tracking-wider text-center">
               {profile?.referral_code || '...'}
             </div>
             <Button
               variant="outline"
               size="icon"
               onClick={copyReferral}
-              className="min-h-[48px] min-w-[48px] border-cream-300"
+              className="border-cream-300"
             >
-              <Copy size={16} />
+              <Copy size={18} />
             </Button>
-            <Button
-              onClick={shareReferral}
-              className="bg-ocean-500 hover:bg-ocean-600 text-white min-h-[48px] px-4 text-body-sm"
-            >
+            <Button onClick={shareReferral}>
               Share
             </Button>
           </div>
@@ -224,23 +221,23 @@ export function ProfileView({ user }: { user: User }) {
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-body font-semibold text-foreground flex items-center gap-2">
-          <Bell size={18} className="text-sage-500" />
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <Bell size={20} className="text-sage-500" />
           Notifications
         </h3>
         <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
-          <div className="absolute top-3 right-3 flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-cream-200 px-2 py-0.5 rounded-full z-10">
-            <Lock size={9} />
+          <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
+            <Lock size={10} />
             Coming Soon
           </div>
-          <div className="space-y-4 opacity-60">
+          <div className="space-y-5 opacity-60">
             {[
               { label: 'Morning Briefing', key: 'morning_briefing' },
               { label: 'Booking Reminders', key: 'booking_reminders' },
               { label: 'New Listings', key: 'new_listings' },
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between">
-                <span className="text-body-sm text-foreground">{item.label}</span>
+                <span className="text-body text-foreground">{item.label}</span>
                 <Switch disabled />
               </div>
             ))}
@@ -251,9 +248,9 @@ export function ProfileView({ user }: { user: User }) {
       <Button
         onClick={signOut}
         variant="outline"
-        className="w-full min-h-[52px] border-cream-300 text-muted-foreground hover:text-destructive hover:border-destructive/30 text-body-sm"
+        className="w-full border-cream-300 text-muted-foreground hover:text-destructive hover:border-destructive/30"
       >
-        <LogOut size={16} className="mr-2" />
+        <LogOut size={18} className="mr-2" />
         Sign Out
       </Button>
     </div>

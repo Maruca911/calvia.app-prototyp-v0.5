@@ -22,7 +22,7 @@ export function ListingsView({ listings }: { listings: Listing[] }) {
   if (!listings.length) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground text-body-sm">
+        <p className="text-muted-foreground text-body">
           Listings coming soon. Check back shortly.
         </p>
       </div>
@@ -71,16 +71,16 @@ function ListingCard({ listing }: { listing: Listing }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-5 space-y-3 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-5 space-y-3.5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-body font-semibold text-foreground">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-[19px] font-semibold text-foreground leading-snug">
               {listing.name}
             </h3>
             {listing.is_featured && (
-              <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-ocean-500 bg-ocean-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                <Star size={10} fill="currentColor" />
+              <span className="inline-flex items-center gap-0.5 text-[13px] font-medium text-ocean-500 bg-ocean-50 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                <Star size={11} fill="currentColor" />
                 Featured
               </span>
             )}
@@ -89,37 +89,36 @@ function ListingCard({ listing }: { listing: Listing }) {
         <button
           onClick={toggleFavorite}
           disabled={saving}
-          className="flex-shrink-0 p-2 -m-2 text-muted-foreground hover:text-ocean-500 transition-colors"
+          className="flex-shrink-0 p-3 -m-3 text-muted-foreground hover:text-ocean-500 transition-colors"
           aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart
-            size={20}
+            size={24}
             fill={favorited ? '#003366' : 'none'}
             className={favorited ? 'text-ocean-500' : ''}
           />
         </button>
       </div>
 
-      <p className="text-body-sm text-muted-foreground leading-relaxed">
+      <p className="text-body text-muted-foreground leading-relaxed">
         {listing.description}
       </p>
 
       {listing.address && (
-        <div className="flex items-center gap-1.5 text-body-sm text-muted-foreground">
-          <MapPin size={14} className="text-sage-500 flex-shrink-0" />
+        <div className="flex items-center gap-2 text-body text-muted-foreground">
+          <MapPin size={16} className="text-sage-500 flex-shrink-0" />
           <span>{listing.address}</span>
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex flex-wrap gap-3 pt-1">
         {listing.contact_phone && (
           <Button
             asChild
             size="sm"
-            className="bg-ocean-500 hover:bg-ocean-600 text-white min-h-[44px] text-body-sm"
           >
             <a href={`tel:${listing.contact_phone}`}>
-              <Phone size={14} className="mr-1.5" />
+              <Phone size={16} className="mr-2" />
               Call
             </a>
           </Button>
@@ -129,10 +128,10 @@ function ListingCard({ listing }: { listing: Listing }) {
             asChild
             variant="outline"
             size="sm"
-            className="border-ocean-200 text-ocean-500 hover:bg-ocean-50 min-h-[44px] text-body-sm"
+            className="border-ocean-200 text-ocean-500 hover:bg-ocean-50"
           >
             <a href={listing.website_url} target="_blank" rel="noopener noreferrer">
-              <Globe size={14} className="mr-1.5" />
+              <Globe size={16} className="mr-2" />
               Website
             </a>
           </Button>

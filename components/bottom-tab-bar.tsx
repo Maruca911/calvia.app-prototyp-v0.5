@@ -24,14 +24,14 @@ export function BottomTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center min-h-[56px] min-w-[64px] px-3 py-2 transition-colors ${
+              className={`flex flex-col items-center justify-center min-h-[64px] min-w-[72px] px-3 py-2 transition-colors ${
                 isActive
                   ? 'text-ocean-500'
                   : 'text-muted-foreground hover:text-ocean-300'
               }`}
             >
-              <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
-              <span className={`text-[11px] mt-0.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+              <Icon size={26} strokeWidth={isActive ? 2.5 : 1.8} />
+              <span className={`text-[13px] mt-1 ${isActive ? 'font-semibold' : 'font-medium'}`}>
                 {tab.label}
               </span>
             </Link>

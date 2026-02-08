@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { HeroSection } from './hero-section';
 import { BlogGrid } from './blog-grid';
 import { CategoryQuickAccess } from './category-quick-access';
+import { FeatureCards } from './feature-cards';
 
 export const revalidate = 3600;
 
@@ -33,6 +34,7 @@ export default async function HomePage() {
     <div className="animate-fade-in">
       <HeroSection />
       <CategoryQuickAccess categories={categories} />
+      <FeatureCards />
       <BlogGrid posts={posts} />
     </div>
   );

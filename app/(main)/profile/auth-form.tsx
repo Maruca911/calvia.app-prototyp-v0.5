@@ -45,36 +45,36 @@ export function AuthForm() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-3 pt-2">
+    <div className="space-y-7">
+      <div className="text-center space-y-4 pt-4">
         <div className="flex justify-center">
-          <CalviaLogo size={48} />
+          <CalviaLogo size={56} />
         </div>
-        <h1 className="text-heading font-semibold text-foreground">
+        <h1 className="text-heading-lg font-semibold text-foreground">
           {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
         </h1>
-        <p className="text-body-sm text-muted-foreground">
+        <p className="text-body text-muted-foreground">
           {mode === 'signin'
             ? 'Sign in to access your concierge profile'
             : 'Join the Calvia community in Mallorca'}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {mode === 'signup' && (
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-body-sm font-medium">
+            <Label htmlFor="name" className="text-body font-medium">
               Full Name
             </Label>
             <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
                 type="text"
                 placeholder="Your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="pl-10 min-h-[52px] bg-white border-cream-300 text-body-sm"
+                className="pl-12 min-h-[56px] bg-white border-cream-300 text-body rounded-lg"
                 required
               />
             </div>
@@ -82,36 +82,36 @@ export function AuthForm() {
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-body-sm font-medium">
+          <Label htmlFor="email" className="text-body font-medium">
             Email
           </Label>
           <div className="relative">
-            <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 min-h-[52px] bg-white border-cream-300 text-body-sm"
+              className="pl-12 min-h-[56px] bg-white border-cream-300 text-body rounded-lg"
               required
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-body-sm font-medium">
+          <Label htmlFor="password" className="text-body font-medium">
             Password
           </Label>
           <div className="relative">
-            <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="password"
               type="password"
               placeholder={mode === 'signup' ? 'Min. 6 characters' : 'Your password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 min-h-[52px] bg-white border-cream-300 text-body-sm"
+              className="pl-12 min-h-[56px] bg-white border-cream-300 text-body rounded-lg"
               required
               minLength={6}
             />
@@ -121,7 +121,7 @@ export function AuthForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-ocean-500 hover:bg-ocean-600 text-white min-h-[52px] text-body font-semibold"
+          className="w-full min-h-[58px] text-[19px]"
         >
           {loading
             ? 'Please wait...'
@@ -136,38 +136,38 @@ export function AuthForm() {
           <div className="w-full border-t border-cream-300" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-body-sm text-muted-foreground">
+          <span className="bg-background px-3 text-body text-muted-foreground">
             or continue with
           </span>
         </div>
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         <Button
           disabled
           variant="outline"
-          className="w-full min-h-[52px] border-cream-300 text-muted-foreground opacity-60 text-body-sm"
+          className="w-full min-h-[56px] border-cream-300 text-muted-foreground opacity-60 text-body"
         >
-          <Chrome size={18} className="mr-2" />
+          <Chrome size={20} className="mr-2" />
           Google
-          <span className="ml-auto text-[11px] font-medium bg-cream-200 px-2 py-0.5 rounded-full">
+          <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
             Coming Soon
           </span>
         </Button>
         <Button
           disabled
           variant="outline"
-          className="w-full min-h-[52px] border-cream-300 text-muted-foreground opacity-60 text-body-sm"
+          className="w-full min-h-[56px] border-cream-300 text-muted-foreground opacity-60 text-body"
         >
-          <Apple size={18} className="mr-2" />
+          <Apple size={20} className="mr-2" />
           Apple
-          <span className="ml-auto text-[11px] font-medium bg-cream-200 px-2 py-0.5 rounded-full">
+          <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
             Coming Soon
           </span>
         </Button>
       </div>
 
-      <p className="text-center text-body-sm text-muted-foreground">
+      <p className="text-center text-body text-muted-foreground">
         {mode === 'signin' ? (
           <>
             Don&apos;t have an account?{' '}
