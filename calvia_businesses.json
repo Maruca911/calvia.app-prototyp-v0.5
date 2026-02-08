@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "name": "Supermercado Cidon",
+    "category": "Shopping - Supermarket",
+    "description": "Gourmet international supermarket in the heart of Portals Nous, offering a wide variety of premium food products, fresh produce, and imported goods. A local favourite for expats and residents since it caters to international tastes.",
+    "address": "Plaza Portals s/n, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 675 294",
+    "website": "https://www.supermercadocidon.com/en/",
+    "instagram": null
+  },
+  {
+    "id": 2,
+    "name": "Eroski Santa Ponsa",
+    "category": "Shopping - Supermarket",
+    "description": "Large branch of the Eroski supermarket chain conveniently located near Santa Ponsa beach. Offers a wide selection of groceries, household items, and fresh food at competitive prices.",
+    "address": "Av Rei Jaume I / Gran Via Puig des Castellet, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 971 692 950",
+    "website": "https://www.eroski.es",
+    "instagram": null
+  },
+  {
+    "id": 3,
+    "name": "Farmacia Portals",
+    "category": "Shopping - Pharmacy",
+    "description": "Well-established pharmacy in Portals Nous operating since 1970, specialising in dermatology, nutricosmetics, homeopathy, and custom compounding. Open 12 hours a day, Monday to Saturday.",
+    "address": "Ctra. Andratx, 30, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 675 136",
+    "website": "https://farmaciaportals.es/en/",
+    "instagram": "@farmacia_portals"
+  },
+  {
+    "id": 4,
+    "name": "Farmacia Puerto Portals",
+    "category": "Shopping - Pharmacy",
+    "description": "Pharmacy located at the Puerto Portals roundabout, offering a full range of pharmaceutical products and health consultations. Convenient for residents of Bendinat, Portals Nous, and Costa d'en Blanes.",
+    "address": "C/ Benito Feijoo, 10 (Rotonda Pto. Portals), 07181 Calvia",
+    "phone": "+34 971 675 500",
+    "website": "https://farmaciapuertoportals.es",
+    "instagram": null
+  },
+  {
+    "id": 5,
+    "name": "Mai Mai",
+    "category": "Shopping - Boutique",
+    "description": "Women's clothing and accessories boutique in the village centre of Portals Nous. Offers a curated selection of fashion and accessories in an upscale village setting.",
+    "address": "Carrer d'Antoni Maria Alcover, 18, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 684 013",
+    "website": null,
+    "instagram": null
+  },
+  {
+    "id": 6,
+    "name": "Lullius Partners",
+    "category": "Professional Services - Tax Lawyers",
+    "description": "Mallorca's leading boutique tax law firm, recognised as a market leader in private wealth and tax advice. Specialises in advising international clients, expats, and high-net-worth individuals on Spanish, cross-border, and international taxation.",
+    "address": "Carrer Unio 10, 2A, 07001 Palma de Mallorca (serves Calvia area)",
+    "phone": "+34 871 002 151",
+    "website": "https://www.lullius.com/en/",
+    "instagram": null
+  },
+  {
+    "id": 7,
+    "name": "Januar Consulting",
+    "category": "Professional Services - Tax & Legal Advisors",
+    "description": "Established in 1957, Januar Consulting specialises in legal and tax advisory services for English-speaking clients in Mallorca. Offers tax consultancy, payroll accounting, legal advice, and Beckham Law guidance for expats.",
+    "address": "Offices in Palma (+34 971 495 835) and Manacor (+34 971 553 161), serving all of Mallorca",
+    "phone": "+34 971 495 835",
+    "website": "https://januarconsulting.com/en/",
+    "instagram": null
+  },
+  {
+    "id": 8,
+    "name": "Resitax",
+    "category": "Professional Services - Tax & Fiscal Lawyers",
+    "description": "Tax and fiscal law firm in Mallorca with over 10 years of experience. Experts in international taxation, tax residency, non-resident fiscal matters, and digital nomad visa applications. Multilingual team serving expats and companies.",
+    "address": "Passeig de Mallorca 14A, Entresuelos C y D, 07012 Palma (serves Calvia area)",
+    "phone": null,
+    "website": "https://resitax.eu/en/",
+    "instagram": null
+  },
+  {
+    "id": 9,
+    "name": "Benavides Asociados",
+    "category": "Professional Services - Lawyers & Advisors",
+    "description": "Multidisciplinary law firm offering comprehensive legal and tax solutions in Mallorca. Specialises in civil, criminal, commercial, and tax law, with particular expertise in real estate law for foreign investors and inheritance matters.",
+    "address": "Offices in Pollensa and Palma de Mallorca (serves all Mallorca including Calvia)",
+    "phone": "+34 971 530 719",
+    "website": "https://benavidesasociados.com/en/",
+    "instagram": null
+  },
+  {
+    "id": 10,
+    "name": "Calvia Villa Service",
+    "category": "Home Services - Plumbing, Electrical & Maintenance",
+    "description": "Full-service property maintenance company based in Calvia offering plumbing, electrical work, waterproofing, leak repair, pool tiling, and general construction. Available 7 days a week with professional support.",
+    "address": "Calvia, Mallorca",
+    "phone": "+34 971 473 446 / +34 629 688 862 (mobile)",
+    "website": "https://calviavillasservice.com",
+    "instagram": null
+  },
+  {
+    "id": 11,
+    "name": "Mallorca Elite Services",
+    "category": "Home Services - Cleaning, Pool & Garden Maintenance",
+    "description": "Property maintenance company in Calvia offering professional cleaning services, garden and pool maintenance, refurbishments, repairs, and emergency services. Caters to villas and private properties throughout the Calvia area.",
+    "address": "Gran Via 23, Calvia, Mallorca",
+    "phone": "+34 678 577 205",
+    "website": "https://www.mallorcaeliteservices.com",
+    "instagram": "@mallorcaeliteservices"
+  },
+  {
+    "id": 12,
+    "name": "Garden Service Mallorca",
+    "category": "Home Services - Pool & Garden Maintenance",
+    "description": "Professional garden and pool maintenance service covering Calvia, Andratx, and Paguera. Offers comprehensive pool cleaning, chemical treatment, pH/chlorine adjustment, plumbing, and garden care.",
+    "address": "Calvia / Andratx area, Mallorca",
+    "phone": "+34 607 476 (partial - contact via website)",
+    "website": "https://garden-service-mallorca.com",
+    "instagram": null
+  },
+  {
+    "id": 13,
+    "name": "Horizon Property Services",
+    "category": "Home Services - Property Management & Pool Service",
+    "description": "Property management company offering pool maintenance, garden care, house cleaning, and repair services across Mallorca. Provides weekly pool cleaning, water quality testing, and full property upkeep for homeowners.",
+    "address": "Palma de Mallorca (serves southwest Mallorca including Calvia)",
+    "phone": "+34 633 885 103",
+    "website": "https://horizonservicesmallorca.com",
+    "instagram": null
+  },
+  {
+    "id": 14,
+    "name": "Agora Portals International School",
+    "category": "Education - International School",
+    "description": "Founded in 2008, Agora Portals was the first school in the Balearic Islands to offer the International Baccalaureate (IB) Diploma Programme. Provides a multilingual education (English, Spanish, Catalan) from Early Years through Sixth Form, with strong emphasis on educational innovation.",
+    "address": "Carretera Vella d'Andratx, s/n, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 684 042",
+    "website": "https://portals.agorainternationalschool.es/en/",
+    "instagram": "@agora_portals"
+  },
+  {
+    "id": 15,
+    "name": "Baleares International College (BIC) - Sa Porrassa Campus",
+    "category": "Education - International School",
+    "description": "British-style international school offering education for boys and girls aged 3 to 18. Follows the British curriculum with a diverse international community. Located on the edge of open countryside in Sa Porrassa, Calvia. No entrance exams required.",
+    "address": "Ctra. Cala Figuera, 3A, Sa Porrassa, 07181 Calvia",
+    "phone": "+34 971 133 167",
+    "website": "https://balearesint.net",
+    "instagram": null
+  },
+  {
+    "id": 16,
+    "name": "Spanisch Aktiv Mallorca",
+    "category": "Education - Language Academy",
+    "description": "Spanish language school offering intensive courses, private lessons, and evening classes in Santa Ponsa and Palma. Courses for all levels from beginners to advanced, taught by qualified native Spanish speakers.",
+    "address": "Calle Ramon de Moncada, 9, 07180 Santa Ponsa",
+    "phone": "WhatsApp: +49 151 23982453",
+    "website": "https://www.spanisch-aktiv-mallorca.de/en/",
+    "instagram": null
+  },
+  {
+    "id": 17,
+    "name": "Clinica Veterinaria Bendinat",
+    "category": "Pets - Veterinarian",
+    "description": "English-speaking veterinary clinic established in 2003 by Nick Murgatroyd BVSc. Offers comprehensive pet care including consultations, surgery, diagnostics, and home visits. Popular with the international expat community. 24-hour emergency telephone available.",
+    "address": "Plaza Bendinat, Calvia, Mallorca",
+    "phone": "+34 971 404 459",
+    "website": "https://vet-bendinat.com",
+    "instagram": "@clinicaveterinariabendinat"
+  },
+  {
+    "id": 18,
+    "name": "Clinica Veterinaria CalviaVet",
+    "category": "Pets - Veterinarian",
+    "description": "Highly rated veterinary clinic in Santa Ponsa, part of the Unavets network. Team includes professionals with experience from renowned centres in the UK and Mallorca. Wheelchair accessible facility with moderate pricing.",
+    "address": "Gran Via Puig des Castellet 1, Local 5, Bloque 5, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 971 695 108",
+    "website": "https://www.unavets.com/calviavet/",
+    "instagram": null
+  },
+  {
+    "id": 19,
+    "name": "Clinica Veterinaria Santa Ponsa",
+    "category": "Pets - Veterinarian",
+    "description": "Local veterinary clinic in Santa Ponsa offering consultations, vaccinations, surgery, and home care visits. Open Monday to Friday with a dedicated team of veterinary professionals.",
+    "address": "Calle Riu Sil, 12, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 971 692 323",
+    "website": "https://www.clinicaveterinariasantaponsa.com",
+    "instagram": null
+  },
+  {
+    "id": 20,
+    "name": "Animals Palmanova",
+    "category": "Pets - Pet Shop",
+    "description": "Specialised pet supplies store in Palmanova, operating since 1996. Offers premium brand pet food, accessories, and expert advice for dogs, cats, and other pets.",
+    "address": "Palmanova, Calvia",
+    "phone": "+34 971 683 772",
+    "website": null,
+    "instagram": null
+  },
+  {
+    "id": 21,
+    "name": "Cappuccino Grand Cafe Puerto Portals",
+    "category": "Cafes & Bakeries - Cafe",
+    "description": "Iconic, stylish all-day cafe set in the glamorous Puerto Portals marina. Part of the renowned Grupo Cappuccino chain, serving premium coffees, iced drinks, breakfast, and an extensive food menu. Open from morning until midnight.",
+    "address": "Puerto Portals, 1, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 677 293",
+    "website": "https://www.cappuccinograndcafe.es/en/mallorca/puerto-portals",
+    "instagram": null
+  },
+  {
+    "id": 22,
+    "name": "Cocos Deli",
+    "category": "Cafes & Bakeries - Healthy Cafe & Deli",
+    "description": "Popular healthy cafe, deli, and juice bar in the village of Portals Nous. Serves nourishing breakfast, brunch, and lunch with a focus on fresh, organic ingredients. Daily changing deli fridge and homemade cakes. Available to eat in or take away.",
+    "address": "Ctra. Andratx, 30, Local 7, 07181 Portals Nous, Calvia",
+    "phone": "+34 971 078 047",
+    "website": "https://www.cocosdeli.com",
+    "instagram": null
+  },
+  {
+    "id": 23,
+    "name": "The French Coffee Shop",
+    "category": "Cafes & Bakeries - Bakery & Coffee Shop",
+    "description": "Artisan French bakery and coffee shop near Portals Nous, fresh-baking daily for over 35 years. Known for outstanding spit roast chicken, fresh baguettes, pastries, and croissants. Popular with the yachting community and local residents alike.",
+    "address": "Carrer Garcilaso de la Vega, 1, 07181 Costa d'en Blanes / Portals Nous, Calvia",
+    "phone": "+34 971 676 707 / +34 678 371 419",
+    "website": "https://www.thefrenchcoffeeshop.eu",
+    "instagram": null
+  },
+  {
+    "id": 24,
+    "name": "Le Cafe Flora",
+    "category": "Cafes & Bakeries - Cafe & Brunch",
+    "description": "Charming French-style breakfast and brunch cafe in Santa Ponsa. Highly rated (4.7/5 on TripAdvisor) for its Nutella crepes, fresh pastries, and quality coffee. Open daily from 8:30am to 3:00pm.",
+    "address": "Calle Ramon de Montcada, 19, Local 8, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 871 734 904",
+    "website": "https://lecafeflora.com",
+    "instagram": "@lecafeflora"
+  },
+  {
+    "id": 25,
+    "name": "FC Rent a Car",
+    "category": "Car Rental / Automotive - Car Rental",
+    "description": "Family-owned car rental company based in the Calvia area, covering Magaluf, Palmanova, and Santa Ponsa. Transparent pricing with no hidden fees. Two office locations in the Calvia area.",
+    "address": "Av. Notari Alemany, 30, Local 14, 07181 Magaluf, Calvia",
+    "phone": "+34 971 130 308",
+    "website": "https://fcrentacarmallorca.com",
+    "instagram": null
+  },
+  {
+    "id": 26,
+    "name": "Rosslind Rent a Car",
+    "category": "Car Rental / Automotive - Car Rental",
+    "description": "Well-established car rental provider in Mallorca based in Santa Ponsa. Offers a combination of experience, technology, and personal service. Also operates as High Class Cars for premium vehicle rentals. Airport pick-up available.",
+    "address": "Calle Puig des Teix, 6, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 971 692 985 / +34 678 737 518 (mobile)",
+    "website": "https://rosslind.com",
+    "instagram": "@needacarmallorca"
+  },
+  {
+    "id": 27,
+    "name": "Hiper Rent a Car - Santa Ponsa Office",
+    "category": "Car Rental / Automotive - Car Rental",
+    "description": "Branch of the well-known Mallorca-based car rental chain, founded over 40 years ago. The Santa Ponsa office is conveniently located near the beach and offers a wide range of vehicles at competitive prices.",
+    "address": "Calle Ramon de Moncada, 9, 07180 Santa Ponsa, Calvia",
+    "phone": "+34 971 691 214",
+    "website": "https://hiperrentacar.com/en/where-we-are/offices/santa-ponsa-office/",
+    "instagram": null
+  },
+  {
+    "id": 28,
+    "name": "Taller Autobody Balear",
+    "category": "Car Rental / Automotive - Mechanic / Body Shop",
+    "description": "Auto repair and body shop located in the Son Bugadelles industrial area of Calvia. Offers mechanical repairs, bodywork, painting, and pre-ITV inspections. Rated 5/5 on Yelp.",
+    "address": "Carrer Valencia, 25 (Poligono Son Bugadelles), 07183 Calvia",
+    "phone": "+34 654 659 661",
+    "website": null,
+    "instagram": null
+  },
+  {
+    "id": 29,
+    "name": "Waypoint Palmanova",
+    "category": "Car Rental / Automotive - Car Wash & Service Centre",
+    "description": "Automotive service centre in Palmanova offering car wash, car repair, tyre replacement, ITV (MOT) service, and an auto parts shop. A one-stop shop for vehicle maintenance needs.",
+    "address": "Carrer Miguel de Santos Oliver, 6, 07181 Palmanova, Calvia",
+    "phone": "+34 682 406 380",
+    "website": "https://waypoint.com.es/en/",
+    "instagram": null
+  },
+  {
+    "id": 30,
+    "name": "Farmacia Frau Moreno",
+    "category": "Shopping - Pharmacy",
+    "description": "Pharmacy located in Santa Ponsa serving the local community with pharmaceutical products, health consultations, and everyday health essentials. Convenient location on the main Gran Via thoroughfare.",
+    "address": "Avenida Gran Via Puig de Galatzo, Santa Ponsa, Calvia",
+    "phone": "+34 971 699 656",
+    "website": null,
+    "instagram": null
+  }
+]

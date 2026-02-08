@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Phone, Globe, MapPin, Star, Heart } from 'lucide-react';
+import { Phone, Globe, MapPin, Star, Heart, Instagram, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth-context';
-import { getSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface Listing {
@@ -15,7 +13,11 @@ interface Listing {
   contact_email: string;
   website_url: string;
   address: string;
+  neighborhood: string;
+  price_range: string;
   is_featured: boolean;
+  social_media: { instagram?: string; facebook?: string } | null;
+  menu_url: string;
 }
 
 export function ListingsView({ listings }: { listings: Listing[] }) {
@@ -39,36 +41,15 @@ export function ListingsView({ listings }: { listings: Listing[] }) {
 }
 
 function ListingCard({ listing }: { listing: Listing }) {
-  const { user } = useAuth();
   const [favorited, setFavorited] = useState(false);
-  const [saving, setSaving] = useState(false);
 
-  const toggleFavorite = async () => {
-    if (!user) {
-      toast('Sign in to save favorites', {
-        description: 'Create an account from the Profile tab.',
-      });
-      return;
-    }
-
-    setSaving(true);
-    if (favorited) {
-      await getSupabase()
-        .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('listing_id', listing.id);
-      setFavorited(false);
-      toast('Removed from favorites');
-    } else {
-      await getSupabase()
-        .from('favorites')
-        .insert({ user_id: user.id, listing_id: listing.id });
-      setFavorited(true);
-      toast('Saved to favorites');
-    }
-    setSaving(false);
+  const toggleFavorite = () => {
+    setFavorited(!favorited);
+    toast(favorited ? 'Removed from favorites' : 'Saved to favorites');
   };
+
+  const instagram = listing.social_media?.instagram;
+  const hasWebsite = listing.website_url && listing.website_url.length > 0;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-5 space-y-3.5 hover:shadow-md transition-shadow">
@@ -85,10 +66,22 @@ function ListingCard({ listing }: { listing: Listing }) {
               </span>
             )}
           </div>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            {listing.neighborhood && (
+              <span className="text-[14px] text-muted-foreground flex items-center gap-1">
+                <MapPin size={13} className="text-sage-500" />
+                {listing.neighborhood}
+              </span>
+            )}
+            {listing.price_range && (
+              <span className="text-[14px] font-medium text-sage-600">
+                {listing.price_range}
+              </span>
+            )}
+          </div>
         </div>
         <button
           onClick={toggleFavorite}
-          disabled={saving}
           className="flex-shrink-0 p-3 -m-3 text-muted-foreground hover:text-ocean-500 transition-colors"
           aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
         >
@@ -104,26 +97,23 @@ function ListingCard({ listing }: { listing: Listing }) {
         {listing.description}
       </p>
 
-      {listing.address && (
+      {listing.address && !listing.neighborhood && (
         <div className="flex items-center gap-2 text-body text-muted-foreground">
           <MapPin size={16} className="text-sage-500 flex-shrink-0" />
           <span>{listing.address}</span>
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3 pt-1">
+      <div className="flex flex-wrap gap-2.5 pt-1">
         {listing.contact_phone && (
-          <Button
-            asChild
-            size="sm"
-          >
+          <Button asChild size="sm">
             <a href={`tel:${listing.contact_phone}`}>
               <Phone size={16} className="mr-2" />
               Call
             </a>
           </Button>
         )}
-        {listing.website_url && (
+        {hasWebsite && (
           <Button
             asChild
             variant="outline"
@@ -133,6 +123,32 @@ function ListingCard({ listing }: { listing: Listing }) {
             <a href={listing.website_url} target="_blank" rel="noopener noreferrer">
               <Globe size={16} className="mr-2" />
               Website
+            </a>
+          </Button>
+        )}
+        {!hasWebsite && instagram && (
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-sage-200 text-sage-600 hover:bg-sage-50"
+          >
+            <a href={instagram} target="_blank" rel="noopener noreferrer">
+              <Instagram size={16} className="mr-2" />
+              Instagram
+            </a>
+          </Button>
+        )}
+        {listing.menu_url && (
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-cream-300 text-foreground hover:bg-cream-100"
+          >
+            <a href={listing.menu_url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink size={16} className="mr-2" />
+              Menu
             </a>
           </Button>
         )}

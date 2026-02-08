@@ -6,7 +6,7 @@ import { Home, Compass, MessageCircle, User } from 'lucide-react';
 
 const tabs = [
   { href: '/home', label: 'Home', icon: Home },
-  { href: '/lifestyle', label: 'Lifestyle', icon: Compass },
+  { href: '/lifestyle', label: 'Discover', icon: Compass },
   { href: '/concierge', label: 'Concierge', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },
 ];

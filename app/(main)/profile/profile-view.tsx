@@ -130,7 +130,7 @@ export function ProfileView({ user }: { user: User }) {
         {favorites.length === 0 ? (
           <div className="p-6 bg-white rounded-xl border border-cream-200 text-center">
             <p className="text-body text-muted-foreground">
-              No favourites yet. Explore Lifestyle to save your top picks.
+              No favourites yet. Explore Discover to save your top picks.
             </p>
           </div>
         ) : (
