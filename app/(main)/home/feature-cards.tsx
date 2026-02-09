@@ -8,7 +8,7 @@ const features = [
     icon: Tag,
     title: 'Exclusive Deals',
     description: 'Discounts at local shops and invite-only events, available only to Calvia members.',
-    href: '/lifestyle',
+    href: '/discover',
     accent: 'bg-ocean-50 text-ocean-500',
   },
   {

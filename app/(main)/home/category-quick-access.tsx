@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Briefcase,
   Wrench,
+  ShieldAlert,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -23,6 +24,7 @@ const iconMap: Record<string, React.ElementType> = {
   'graduation-cap': GraduationCap,
   briefcase: Briefcase,
   wrench: Wrench,
+  'shield-alert': ShieldAlert,
 };
 
 interface Category {
@@ -42,7 +44,7 @@ export function CategoryQuickAccess({ categories }: { categories: Category[] }) 
           return (
             <Link
               key={cat.id}
-              href={`/lifestyle/${cat.slug}`}
+              href={`/discover/${cat.slug}`}
               className={`flex flex-col items-center gap-2.5 p-5 bg-white rounded-xl shadow-sm border border-cream-200 hover:shadow-md hover:border-sage-300 transition-all min-h-[100px] justify-center animate-fade-in-delay-${Math.min(i + 1, 3)}`}
             >
               <div className="w-11 h-11 rounded-full bg-sage-50 flex items-center justify-center">
@@ -57,7 +59,7 @@ export function CategoryQuickAccess({ categories }: { categories: Category[] }) 
       </div>
       <div className="mt-5 text-center">
         <Link
-          href="/lifestyle"
+          href="/discover"
           className="inline-flex items-center gap-1.5 text-body-sm font-medium text-ocean-500 hover:text-ocean-400 transition-colors"
         >
           Explore all services

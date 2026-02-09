@@ -45,7 +45,7 @@ export default async function CategoryPage({
   return (
     <div className="px-5 py-6 animate-fade-in">
       <Link
-        href="/lifestyle"
+        href="/discover"
         className="inline-flex items-center gap-1.5 text-body-sm text-muted-foreground hover:text-ocean-500 transition-colors mb-4"
       >
         <ArrowLeft size={16} />

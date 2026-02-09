@@ -32,7 +32,7 @@ async function getNeighborhoods() {
   return unique as string[];
 }
 
-export default async function LifestylePage() {
+export default async function DiscoverPage() {
   const [categories, listings, neighborhoods] = await Promise.all([
     getCategories(),
     getAllListings(),

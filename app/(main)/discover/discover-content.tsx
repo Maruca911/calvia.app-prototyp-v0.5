@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { Search, X, MapPin, Star, Phone, Globe, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { LifestyleCategories } from './lifestyle-categories';
+import { DiscoverCategories } from './discover-categories';
 
 interface Category {
   id: string;
@@ -76,6 +76,23 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   'garden': ['landscaping', 'gardening', 'lawn', 'plants'],
   'property': ['real-estate', 'villa', 'apartment', 'house'],
   'home': ['villa', 'apartment', 'house', 'property'],
+  'beauty': ['salon', 'facial', 'nails', 'lash', 'makeup', 'solarium'],
+  'nails': ['manicure', 'pedicure', 'nail-salon', 'beauty'],
+  'lash': ['eyelash', 'extensions', 'beauty'],
+  'makeup': ['artist', 'bridal', 'beauty', 'cosmetics'],
+  'interior': ['design', 'decoration', 'furniture', 'interiors'],
+  'design': ['interior', 'decoration', 'architect'],
+  'catering': ['private-chef', 'event', 'party', 'wedding'],
+  'chef': ['catering', 'private', 'cooking', 'personal'],
+  'wine': ['deli', 'gourmet', 'fine-food', 'sommelier'],
+  'deli': ['delicatessen', 'gourmet', 'fine-food', 'wine'],
+  'emergency': ['police', 'fire', 'ambulance', 'hospital', '112'],
+  'police': ['emergency', 'guardia', 'policia', 'safety'],
+  'fire': ['bomberos', 'emergency', 'brigade'],
+  'indian': ['curry', 'tandoori', 'masala', 'biryani'],
+  'thai': ['asian', 'pad-thai', 'curry', 'oriental'],
+  'chinese': ['asian', 'oriental', 'dim-sum', 'wok'],
+  'german': ['bratwurst', 'schnitzel', 'bier', 'feinkost'],
 };
 
 function scoreResult(listing: Listing, terms: string[]): number {
@@ -228,7 +245,7 @@ export function DiscoverContent({ categories, listings, neighborhoods }: Discove
           )}
         </div>
       ) : (
-        <LifestyleCategories categories={categories} />
+        <DiscoverCategories categories={categories} />
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Briefcase,
   Wrench,
+  ShieldAlert,
   ChevronRight,
 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ const iconMap: Record<string, React.ElementType> = {
   'graduation-cap': GraduationCap,
   briefcase: Briefcase,
   wrench: Wrench,
+  'shield-alert': ShieldAlert,
 };
 
 interface Category {
@@ -34,7 +36,7 @@ interface Category {
   icon_name: string;
 }
 
-export function LifestyleCategories({ categories }: { categories: Category[] }) {
+export function DiscoverCategories({ categories }: { categories: Category[] }) {
   return (
     <div className="space-y-3">
       {categories.map((cat) => {
@@ -42,8 +44,8 @@ export function LifestyleCategories({ categories }: { categories: Category[] }) 
         return (
           <Link
             key={cat.id}
-            href={`/lifestyle/${cat.slug}`}
-            className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-cream-200 hover:shadow-md hover:border-sage-300 transition-all min-h-[72px]"
+            href={`/discover/${cat.slug}`}
+            className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-cream-200 hover:shadow-md hover:border-sage-300 transition-all min-h-[76px]"
           >
             <div className="w-12 h-12 rounded-full bg-sage-50 flex items-center justify-center flex-shrink-0">
               <Icon size={22} className="text-sage-600" />
