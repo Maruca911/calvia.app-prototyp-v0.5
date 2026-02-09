@@ -256,7 +256,7 @@ export function ListingDetail({
               <Button
                 asChild
                 variant="outline"
-                className="h-12 border-sage-200 text-sage-600 hover:bg-sage-50"
+                className="h-12 border-[#E1306C]/30 text-[#C13584] hover:bg-[#E1306C]/5"
               >
                 <a href={instagram} target="_blank" rel="noopener noreferrer">
                   <Instagram size={18} className="mr-2" />

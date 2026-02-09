@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
 import { RequestFormDrawer } from './request-form-drawer';
 import { RequestHistory } from './request-history';
+import { PremiumDigest } from './premium-digest';
 import {
   UtensilsCrossed,
   Car,
@@ -127,13 +128,15 @@ export function ConciergeContent() {
           </div>
         </div>
         <a
-          href="tel:+34600000000"
+          href="tel:+4915127578246"
           className="mt-3 flex items-center justify-center gap-2 w-full min-h-[56px] bg-ocean-500 text-white rounded-xl text-body font-semibold hover:bg-ocean-600 active:bg-ocean-700 transition-colors"
         >
           <PhoneCall size={20} />
           Call Concierge
         </a>
       </div>
+
+      <PremiumDigest />
 
       <section className="mt-7">
         <h2 className="text-heading-sm font-semibold text-foreground mb-4">

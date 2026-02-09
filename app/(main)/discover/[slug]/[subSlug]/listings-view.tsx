@@ -284,7 +284,7 @@ function ListingCard({
             </Button>
           )}
           {!hasWebsite && instagram && (
-            <Button asChild variant="outline" size="sm" className="border-sage-200 text-sage-600 hover:bg-sage-50">
+            <Button asChild variant="outline" size="sm" className="border-[#E1306C]/30 text-[#C13584] hover:bg-[#E1306C]/5">
               <a href={instagram} target="_blank" rel="noopener noreferrer">
                 <Instagram size={14} className="mr-1.5" />
                 Instagram

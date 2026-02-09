@@ -324,7 +324,7 @@ function SearchResultCard({ listing }: { listing: Listing }) {
             asChild
             variant="outline"
             size="sm"
-            className="h-8 text-[13px] border-sage-200 text-sage-600 hover:bg-sage-50"
+            className="h-8 text-[13px] border-[#E1306C]/30 text-[#C13584] hover:bg-[#E1306C]/5"
           >
             <a href={instagram} target="_blank" rel="noopener noreferrer">
               <Instagram size={14} className="mr-1.5" />

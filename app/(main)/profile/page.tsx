@@ -147,7 +147,7 @@ function GuestProfileView() {
         <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
           <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
             <Lock size={10} />
-            Coming Soon
+            Sign up to unlock
           </div>
           <div className="space-y-5 opacity-50">
             {[

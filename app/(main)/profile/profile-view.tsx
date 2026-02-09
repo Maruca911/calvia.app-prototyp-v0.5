@@ -32,6 +32,7 @@ interface Profile {
   loyalty_tier: string;
   loyalty_points: number;
   qr_token: string;
+  is_premium: boolean;
   notification_settings: {
     morning_briefing: boolean;
     booking_reminders: boolean;
@@ -256,30 +257,7 @@ export function ProfileView({ user }: { user: User }) {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
-          <Bell size={20} className="text-sage-500" />
-          Notifications
-        </h3>
-        <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
-          <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
-            <Lock size={10} />
-            Coming Soon
-          </div>
-          <div className="space-y-5 opacity-60">
-            {[
-              { label: 'Morning Briefing', key: 'morning_briefing' },
-              { label: 'Booking Reminders', key: 'booking_reminders' },
-              { label: 'New Listings', key: 'new_listings' },
-            ].map((item) => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-body text-foreground">{item.label}</span>
-                <Switch disabled />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <NotificationsSection profile={profile} userId={user.id} onUpdate={loadProfile} />
 
       <Button
         onClick={signOut}
@@ -290,5 +268,80 @@ export function ProfileView({ user }: { user: User }) {
         Sign Out
       </Button>
     </div>
+  );
+}
+
+function NotificationsSection({
+  profile,
+  userId,
+  onUpdate,
+}: {
+  profile: Profile | null;
+  userId: string;
+  onUpdate: () => void;
+}) {
+  const isPremium = profile?.is_premium || false;
+  const settings = profile?.notification_settings || {
+    morning_briefing: false,
+    booking_reminders: false,
+    new_listings: false,
+  };
+
+  const ITEMS = [
+    { label: 'Morning Briefing', key: 'morning_briefing', premium: true },
+    { label: 'Booking Reminders', key: 'booking_reminders', premium: false },
+    { label: 'New Listings', key: 'new_listings', premium: false },
+  ] as const;
+
+  const toggleSetting = async (key: string) => {
+    const current = settings[key as keyof typeof settings];
+    const updated = { ...settings, [key]: !current };
+    await getSupabase()
+      .from('profiles')
+      .update({ notification_settings: updated })
+      .eq('id', userId);
+    onUpdate();
+    toast.success(`${!current ? 'Enabled' : 'Disabled'} notification`);
+  };
+
+  return (
+    <section className="space-y-3">
+      <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+        <Bell size={20} className="text-sage-500" />
+        Notifications
+      </h3>
+      <div className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm">
+        {!isPremium && (
+          <div className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground bg-cream-100 px-3 py-1.5 rounded-lg mb-4">
+            <Lock size={11} />
+            <span>Morning Briefing requires Calvia Premium</span>
+          </div>
+        )}
+        <div className="space-y-5">
+          {ITEMS.map((item) => {
+            const isLocked = item.premium && !isPremium;
+            return (
+              <div key={item.key} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`text-body text-foreground ${isLocked ? 'opacity-50' : ''}`}>
+                    {item.label}
+                  </span>
+                  {item.premium && (
+                    <span className="text-[10px] font-bold text-ocean-500 bg-ocean-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Premium
+                    </span>
+                  )}
+                </div>
+                <Switch
+                  disabled={isLocked}
+                  checked={settings[item.key as keyof typeof settings]}
+                  onCheckedChange={() => toggleSetting(item.key)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
