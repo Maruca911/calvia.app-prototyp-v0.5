@@ -4,11 +4,12 @@ import { DealsContent } from './deals-content';
 export const dynamic = 'force-dynamic';
 
 async function getDeals() {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('deals')
     .select('*')
     .eq('is_active', true)
     .order('created_at', { ascending: false });
+  if (error) console.error('[Deals] getDeals error:', error.message);
   return data ?? [];
 }
 

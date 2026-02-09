@@ -46,9 +46,8 @@ async function getTodaysDeals() {
     .from('deals')
     .select('id, title, description, discount_text, valid_until, category, image_url, listing_id')
     .eq('is_active', true)
-    .not('is_premium_only', 'eq', true)
     .order('created_at', { ascending: false })
-    .limit(4);
+    .limit(6);
 
   if (fallbackError) console.error('[Home] getTodaysDeals fallback error:', fallbackError.message);
 

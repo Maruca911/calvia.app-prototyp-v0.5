@@ -5,22 +5,24 @@ import { ListingDetail } from './listing-detail';
 export const dynamic = 'force-dynamic';
 
 async function getListing(id: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('listings')
     .select('*, categories!inner(id, name, slug, parent_id, parent:parent_id(slug, name))')
     .eq('id', id)
     .maybeSingle();
+  if (error) console.error('[Listing] getListing error:', error.message);
   return data;
 }
 
 async function getRelatedListings(categoryId: string, excludeId: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('listings')
     .select('id, name, neighborhood, price_range, is_featured')
     .eq('category_id', categoryId)
     .neq('id', excludeId)
     .order('is_featured', { ascending: false })
     .limit(4);
+  if (error) console.error('[Listing] getRelatedListings error:', error.message);
   return data ?? [];
 }
 

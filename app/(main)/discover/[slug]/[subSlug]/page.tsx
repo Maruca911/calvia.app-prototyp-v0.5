@@ -7,22 +7,24 @@ import { ListingsView } from './listings-view';
 export const dynamic = 'force-dynamic';
 
 async function getSubCategory(slug: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('categories')
     .select('*, parent:parent_id(slug, name)')
     .eq('slug', slug)
     .not('parent_id', 'is', null)
     .maybeSingle();
+  if (error) console.error('[Discover/SubCategory] getSubCategory error:', error.message);
   return data;
 }
 
 async function getListings(categoryId: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('listings')
     .select('*')
     .eq('category_id', categoryId)
     .order('is_featured', { ascending: false })
     .order('name');
+  if (error) console.error('[Discover/SubCategory] getListings error:', error.message);
   return data ?? [];
 }
 

@@ -15,7 +15,10 @@ export function getSupabase(): SupabaseClient {
       );
     }
 
-    _supabase = createClient(url || '', key || '');
+    _supabase = createClient(
+      url || 'https://placeholder.supabase.co',
+      key || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
+    );
   }
   return _supabase;
 }

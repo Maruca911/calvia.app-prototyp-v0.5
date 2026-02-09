@@ -7,21 +7,23 @@ import { ArrowLeft } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 async function getCategory(slug: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('categories')
     .select('*')
     .eq('slug', slug)
     .is('parent_id', null)
     .maybeSingle();
+  if (error) console.error('[Discover/Category] getCategory error:', error.message);
   return data;
 }
 
 async function getSubCategories(parentId: string) {
-  const { data } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('categories')
     .select('*')
     .eq('parent_id', parentId)
     .order('sort_order');
+  if (error) console.error('[Discover/Category] getSubCategories error:', error.message);
   return data ?? [];
 }
 
