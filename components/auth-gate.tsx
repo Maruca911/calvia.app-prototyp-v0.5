@@ -97,7 +97,7 @@ function WelcomeGate({ onEnter }: { onEnter: () => void }) {
               Explore Calvia
               <ArrowRight size={20} className="ml-2" />
             </Button>
-            <p className="text-[15px] text-ocean-100">
+            <p className="text-[15px] text-white/80">
               Want to save favourites?{' '}
               <button
                 onClick={onEnter}

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { QRCodeCard } from '@/components/qr-code-card';
 import { LoyaltyTierCard } from '@/components/loyalty-tier-card';
+import Link from 'next/link';
 import {
   LogOut,
   Heart,
@@ -19,8 +20,11 @@ import {
   MapPin,
   Trash2,
   ScanLine,
+  ChevronRight,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { EditProfileDrawer } from './edit-profile-drawer';
 
 interface Profile {
   full_name: string;
@@ -28,6 +32,7 @@ interface Profile {
   loyalty_tier: string;
   loyalty_points: number;
   qr_token: string;
+  is_premium: boolean;
   notification_settings: {
     morning_briefing: boolean;
     booking_reminders: boolean;
@@ -51,6 +56,7 @@ export function ProfileView({ user }: { user: User }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
   const [visitCount, setVisitCount] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
 
   const loadProfile = useCallback(async () => {
     const { data } = await getSupabase()
@@ -134,7 +140,22 @@ export function ProfileView({ user }: { user: User }) {
             {user.email}
           </p>
         </div>
+        <button
+          onClick={() => setEditOpen(true)}
+          className="p-2.5 rounded-full bg-cream-100 text-muted-foreground hover:text-ocean-500 hover:bg-ocean-50 transition-all flex-shrink-0"
+          aria-label="Edit profile"
+        >
+          <Pencil size={16} />
+        </button>
       </div>
+
+      <EditProfileDrawer
+        userId={user.id}
+        currentName={profile?.full_name || ''}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSaved={loadProfile}
+      />
 
       <section className="space-y-3">
         <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
@@ -177,24 +198,30 @@ export function ProfileView({ user }: { user: User }) {
             {favorites.map((fav) => (
               <div
                 key={fav.id}
-                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-cream-200"
+                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-cream-200 hover:shadow-sm transition-shadow"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-body font-semibold text-foreground truncate">
-                    {fav.listings?.name}
-                  </p>
-                  {fav.listings?.address && (
-                    <p className="text-[15px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                      <MapPin size={13} />
-                      {fav.listings.address}
+                <Link
+                  href={`/discover/listing/${fav.listing_id}`}
+                  className="flex-1 min-w-0 flex items-center gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-body font-semibold text-foreground truncate hover:text-ocean-500 transition-colors">
+                      {fav.listings?.name}
                     </p>
-                  )}
-                </div>
+                    {fav.listings?.address && (
+                      <p className="text-[15px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                        <MapPin size={13} />
+                        <span className="truncate">{fav.listings.address}</span>
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight size={16} className="text-muted-foreground flex-shrink-0" />
+                </Link>
                 <button
                   onClick={() => removeFavorite(fav.id)}
-                  className="p-3 text-muted-foreground hover:text-destructive transition-colors"
+                  className="p-3 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))}
@@ -230,30 +257,7 @@ export function ProfileView({ user }: { user: User }) {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
-          <Bell size={20} className="text-sage-500" />
-          Notifications
-        </h3>
-        <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
-          <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
-            <Lock size={10} />
-            Coming Soon
-          </div>
-          <div className="space-y-5 opacity-60">
-            {[
-              { label: 'Morning Briefing', key: 'morning_briefing' },
-              { label: 'Booking Reminders', key: 'booking_reminders' },
-              { label: 'New Listings', key: 'new_listings' },
-            ].map((item) => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-body text-foreground">{item.label}</span>
-                <Switch disabled />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <NotificationsSection profile={profile} userId={user.id} onUpdate={loadProfile} />
 
       <Button
         onClick={signOut}
@@ -264,5 +268,80 @@ export function ProfileView({ user }: { user: User }) {
         Sign Out
       </Button>
     </div>
+  );
+}
+
+function NotificationsSection({
+  profile,
+  userId,
+  onUpdate,
+}: {
+  profile: Profile | null;
+  userId: string;
+  onUpdate: () => void;
+}) {
+  const isPremium = profile?.is_premium || false;
+  const settings = profile?.notification_settings || {
+    morning_briefing: false,
+    booking_reminders: false,
+    new_listings: false,
+  };
+
+  const ITEMS = [
+    { label: 'Morning Briefing', key: 'morning_briefing', premium: true },
+    { label: 'Booking Reminders', key: 'booking_reminders', premium: false },
+    { label: 'New Listings', key: 'new_listings', premium: false },
+  ] as const;
+
+  const toggleSetting = async (key: string) => {
+    const current = settings[key as keyof typeof settings];
+    const updated = { ...settings, [key]: !current };
+    await getSupabase()
+      .from('profiles')
+      .update({ notification_settings: updated })
+      .eq('id', userId);
+    onUpdate();
+    toast.success(`${!current ? 'Enabled' : 'Disabled'} notification`);
+  };
+
+  return (
+    <section className="space-y-3">
+      <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+        <Bell size={20} className="text-sage-500" />
+        Notifications
+      </h3>
+      <div className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm">
+        {!isPremium && (
+          <div className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground bg-cream-100 px-3 py-1.5 rounded-lg mb-4">
+            <Lock size={11} />
+            <span>Morning Briefing requires Calvia Premium</span>
+          </div>
+        )}
+        <div className="space-y-5">
+          {ITEMS.map((item) => {
+            const isLocked = item.premium && !isPremium;
+            return (
+              <div key={item.key} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`text-body text-foreground ${isLocked ? 'opacity-50' : ''}`}>
+                    {item.label}
+                  </span>
+                  {item.premium && (
+                    <span className="text-[10px] font-bold text-ocean-500 bg-ocean-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                      Premium
+                    </span>
+                  )}
+                </div>
+                <Switch
+                  disabled={isLocked}
+                  checked={settings[item.key as keyof typeof settings]}
+                  onCheckedChange={() => toggleSetting(item.key)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }

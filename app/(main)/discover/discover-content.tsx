@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { Search, X, MapPin, Star, Phone, Globe, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { LifestyleCategories } from './lifestyle-categories';
+import { DiscoverCategories } from './discover-categories';
 
 interface Category {
   id: string;
@@ -76,6 +77,23 @@ const SEARCH_SYNONYMS: Record<string, string[]> = {
   'garden': ['landscaping', 'gardening', 'lawn', 'plants'],
   'property': ['real-estate', 'villa', 'apartment', 'house'],
   'home': ['villa', 'apartment', 'house', 'property'],
+  'beauty': ['salon', 'facial', 'nails', 'lash', 'makeup', 'solarium'],
+  'nails': ['manicure', 'pedicure', 'nail-salon', 'beauty'],
+  'lash': ['eyelash', 'extensions', 'beauty'],
+  'makeup': ['artist', 'bridal', 'beauty', 'cosmetics'],
+  'interior': ['design', 'decoration', 'furniture', 'interiors'],
+  'design': ['interior', 'decoration', 'architect'],
+  'catering': ['private-chef', 'event', 'party', 'wedding'],
+  'chef': ['catering', 'private', 'cooking', 'personal'],
+  'wine': ['deli', 'gourmet', 'fine-food', 'sommelier'],
+  'deli': ['delicatessen', 'gourmet', 'fine-food', 'wine'],
+  'emergency': ['police', 'fire', 'ambulance', 'hospital', '112'],
+  'police': ['emergency', 'guardia', 'policia', 'safety'],
+  'fire': ['bomberos', 'emergency', 'brigade'],
+  'indian': ['curry', 'tandoori', 'masala', 'biryani'],
+  'thai': ['asian', 'pad-thai', 'curry', 'oriental'],
+  'chinese': ['asian', 'oriental', 'dim-sum', 'wok'],
+  'german': ['bratwurst', 'schnitzel', 'bier', 'feinkost'],
 };
 
 function scoreResult(listing: Listing, terms: string[]): number {
@@ -228,7 +246,7 @@ export function DiscoverContent({ categories, listings, neighborhoods }: Discove
           )}
         </div>
       ) : (
-        <LifestyleCategories categories={categories} />
+        <DiscoverCategories categories={categories} />
       )}
     </div>
   );
@@ -243,9 +261,12 @@ function SearchResultCard({ listing }: { listing: Listing }) {
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[17px] font-semibold text-foreground leading-snug">
+            <Link
+              href={`/discover/listing/${listing.id}`}
+              className="text-[17px] font-semibold text-foreground leading-snug hover:text-ocean-500 transition-colors"
+            >
               {listing.name}
-            </h3>
+            </Link>
             {listing.is_featured && (
               <span className="inline-flex items-center gap-0.5 text-[12px] font-medium text-ocean-500 bg-ocean-50 px-2 py-0.5 rounded-full flex-shrink-0">
                 <Star size={10} fill="currentColor" />
@@ -303,7 +324,7 @@ function SearchResultCard({ listing }: { listing: Listing }) {
             asChild
             variant="outline"
             size="sm"
-            className="h-8 text-[13px] border-sage-200 text-sage-600 hover:bg-sage-50"
+            className="h-8 text-[13px] border-[#E1306C]/30 text-[#C13584] hover:bg-[#E1306C]/5"
           >
             <a href={instagram} target="_blank" rel="noopener noreferrer">
               <Instagram size={14} className="mr-1.5" />

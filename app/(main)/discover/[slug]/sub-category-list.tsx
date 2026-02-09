@@ -35,13 +35,19 @@ import {
   Waves,
   ChevronRight,
   Folder,
+  Palette,
+  Wine,
+  ChefHat,
+  Siren,
+  Phone,
+  Flame,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
   home: HomeIcon,
   building: Building,
   briefcase: Briefcase,
-  'chef-hat': UtensilsCrossed,
+  'chef-hat': ChefHat,
   'utensils-crossed': UtensilsCrossed,
   umbrella: Umbrella,
   salad: Salad,
@@ -71,6 +77,11 @@ const iconMap: Record<string, React.ElementType> = {
   sparkle: Sparkles,
   hammer: Hammer,
   waves: Waves,
+  palette: Palette,
+  wine: Wine,
+  siren: Siren,
+  phone: Phone,
+  flame: Flame,
 };
 
 interface SubCategory {
@@ -95,7 +106,7 @@ export function SubCategoryList({
         return (
           <Link
             key={sub.id}
-            href={`/lifestyle/${parentSlug}/${sub.slug}`}
+            href={`/discover/${parentSlug}/${sub.slug}`}
             className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-cream-200 hover:shadow-md hover:border-sage-300 transition-all min-h-[64px]"
           >
             <div className="w-10 h-10 rounded-lg bg-sage-50 flex items-center justify-center flex-shrink-0">
