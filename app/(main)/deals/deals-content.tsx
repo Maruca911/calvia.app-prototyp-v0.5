@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Tag, Clock, ChevronRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getSupabase } from '@/lib/supabase';
 
 interface Deal {
   id: string;
@@ -16,8 +18,23 @@ interface Deal {
 
 const CATEGORIES = ['All', 'Dining', 'Wellness', 'Activities', 'Shopping', 'Beauty', 'Home Services', 'Professional'];
 
-export function DealsContent({ deals }: { deals: Deal[] }) {
+export function DealsContent() {
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+
+  useEffect(() => {
+    async function fetchDeals() {
+      const { data } = await getSupabase()
+        .from('deals')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      setDeals(data ?? []);
+      setLoaded(true);
+    }
+    fetchDeals();
+  }, []);
 
   const filtered = activeCategory === 'All'
     ? deals
@@ -30,6 +47,23 @@ export function DealsContent({ deals }: { deals: Deal[] }) {
     if (days === 1) return '1 day left';
     return `${days} days left`;
   };
+
+  if (!loaded) {
+    return (
+      <div className="px-5 py-6 space-y-4">
+        <Skeleton className="h-8 w-44 rounded-lg" />
+        <Skeleton className="h-5 w-64 rounded-lg" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-full flex-shrink-0" />
+          ))}
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-64 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="px-5 py-6 animate-fade-in">

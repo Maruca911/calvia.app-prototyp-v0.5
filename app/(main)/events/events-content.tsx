@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { CalendarDays, MapPin, Clock, Star } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getSupabase } from '@/lib/supabase';
 
 interface CalviaEvent {
   id: string;
@@ -18,8 +20,23 @@ interface CalviaEvent {
 
 const CATEGORIES = ['All', 'Markets', 'Music', 'Food & Drink', 'Sport', 'Culture', 'Entertainment', 'Family'];
 
-export function EventsContent({ events }: { events: CalviaEvent[] }) {
+export function EventsContent() {
+  const [events, setEvents] = useState<CalviaEvent[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+
+  useEffect(() => {
+    async function fetchEvents() {
+      const { data } = await getSupabase()
+        .from('events')
+        .select('*')
+        .gte('event_date', new Date(Date.now() - 86400000).toISOString())
+        .order('event_date', { ascending: true });
+      setEvents(data ?? []);
+      setLoaded(true);
+    }
+    fetchEvents();
+  }, []);
 
   const filtered = activeCategory === 'All'
     ? events
@@ -40,6 +57,23 @@ export function EventsContent({ events }: { events: CalviaEvent[] }) {
 
   const featured = filtered.filter(e => e.is_featured);
   const upcoming = filtered.filter(e => !e.is_featured);
+
+  if (!loaded) {
+    return (
+      <div className="px-5 py-6 space-y-4">
+        <Skeleton className="h-8 w-32 rounded-lg" />
+        <Skeleton className="h-5 w-64 rounded-lg" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-full flex-shrink-0" />
+          ))}
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-64 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="px-5 py-6 animate-fade-in">

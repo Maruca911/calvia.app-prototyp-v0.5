@@ -49,6 +49,8 @@ interface Category {
 }
 
 export function CategoryQuickAccess({ categories }: { categories: Category[] }) {
+  if (!categories.length) return null;
+
   return (
     <section className="px-5 -mt-6 relative z-10" aria-label="Browse service categories">
       <div className="grid grid-cols-2 gap-3" role="list">

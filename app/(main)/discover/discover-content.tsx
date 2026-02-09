@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Search, X, MapPin, Star, Phone, Globe, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getSupabase } from '@/lib/supabase';
 import { DiscoverCategories } from './discover-categories';
 
 interface Category {
@@ -33,12 +35,6 @@ interface Listing {
     slug: string;
     parent_id: string;
   };
-}
-
-interface DiscoverContentProps {
-  categories: Category[];
-  listings: Listing[];
-  neighborhoods: string[];
 }
 
 const SEARCH_SYNONYMS: Record<string, string[]> = {
@@ -125,9 +121,30 @@ function scoreResult(listing: Listing, terms: string[]): number {
   return score;
 }
 
-export function DiscoverContent({ categories, listings, neighborhoods }: DiscoverContentProps) {
+export function DiscoverContent() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = getSupabase();
+    async function fetchAll() {
+      const [catRes, listRes, hoodRes] = await Promise.all([
+        supabase.from('categories').select('*').is('parent_id', null).order('sort_order'),
+        supabase.from('listings').select('*, categories!inner(name, slug, parent_id)').order('is_featured', { ascending: false }).order('name'),
+        supabase.from('listings').select('neighborhood').not('neighborhood', 'is', null).order('neighborhood'),
+      ]);
+      setCategories(catRes.data ?? []);
+      setListings(listRes.data ?? []);
+      const unique = Array.from(new Set((hoodRes.data ?? []).map((d: any) => d.neighborhood)));
+      setNeighborhoods(unique as string[]);
+      setLoaded(true);
+    }
+    fetchAll();
+  }, []);
 
   const isSearching = query.length >= 2 || selectedNeighborhood !== null;
 
@@ -159,6 +176,26 @@ export function DiscoverContent({ categories, listings, neighborhoods }: Discove
     setQuery('');
     setSelectedNeighborhood(null);
   };
+
+  if (!loaded) {
+    return (
+      <div className="px-5 py-6 space-y-4">
+        <Skeleton className="h-8 w-40 rounded-lg" />
+        <Skeleton className="h-5 w-64 rounded-lg" />
+        <Skeleton className="h-[50px] w-full rounded-xl" />
+        <div className="flex gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-full flex-shrink-0" />
+          ))}
+        </div>
+        <div className="space-y-2.5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-[76px] rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-5 py-6 animate-fade-in">
