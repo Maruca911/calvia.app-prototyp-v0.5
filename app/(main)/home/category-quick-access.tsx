@@ -7,6 +7,10 @@ import {
   Compass,
   Coffee,
   HeartPulse,
+  ShoppingBag,
+  GraduationCap,
+  Briefcase,
+  Wrench,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -15,6 +19,10 @@ const iconMap: Record<string, React.ElementType> = {
   compass: Compass,
   coffee: Coffee,
   'heart-pulse': HeartPulse,
+  'shopping-bag': ShoppingBag,
+  'graduation-cap': GraduationCap,
+  briefcase: Briefcase,
+  wrench: Wrench,
 };
 
 interface Category {
@@ -27,8 +35,8 @@ interface Category {
 
 export function CategoryQuickAccess({ categories }: { categories: Category[] }) {
   return (
-    <section className="px-5 -mt-6 relative z-10">
-      <div className="grid grid-cols-2 gap-3">
+    <section className="px-5 -mt-6 relative z-10" aria-label="Browse service categories">
+      <div className="grid grid-cols-2 gap-3" role="list">
         {categories.map((cat, i) => {
           const Icon = iconMap[cat.icon_name] || Compass;
           return (

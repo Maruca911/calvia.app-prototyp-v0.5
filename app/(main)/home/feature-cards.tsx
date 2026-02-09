@@ -29,7 +29,7 @@ const features = [
 
 export function FeatureCards() {
   return (
-    <section className="px-5 py-6">
+    <section className="px-5 py-6" aria-label="Member benefits">
       <h2 className="text-heading font-semibold text-foreground mb-5">
         Why Calvia Members Love It
       </h2>

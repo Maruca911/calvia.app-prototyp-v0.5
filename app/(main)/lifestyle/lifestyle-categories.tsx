@@ -7,6 +7,10 @@ import {
   Compass,
   Coffee,
   HeartPulse,
+  ShoppingBag,
+  GraduationCap,
+  Briefcase,
+  Wrench,
   ChevronRight,
 } from 'lucide-react';
 
@@ -16,6 +20,10 @@ const iconMap: Record<string, React.ElementType> = {
   compass: Compass,
   coffee: Coffee,
   'heart-pulse': HeartPulse,
+  'shopping-bag': ShoppingBag,
+  'graduation-cap': GraduationCap,
+  briefcase: Briefcase,
+  wrench: Wrench,
 };
 
 interface Category {

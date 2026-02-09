@@ -6,6 +6,8 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { QRCodeCard } from '@/components/qr-code-card';
+import { LoyaltyTierCard } from '@/components/loyalty-tier-card';
 import {
   LogOut,
   Heart,
@@ -16,6 +18,7 @@ import {
   Lock,
   MapPin,
   Trash2,
+  ScanLine,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,6 +27,7 @@ interface Profile {
   referral_code: string;
   loyalty_tier: string;
   loyalty_points: number;
+  qr_token: string;
   notification_settings: {
     morning_briefing: boolean;
     booking_reminders: boolean;
@@ -46,6 +50,7 @@ export function ProfileView({ user }: { user: User }) {
   const { signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
+  const [visitCount, setVisitCount] = useState(0);
 
   const loadProfile = useCallback(async () => {
     const { data } = await getSupabase()
@@ -65,10 +70,19 @@ export function ProfileView({ user }: { user: User }) {
     if (data) setFavorites(data as unknown as FavoriteListing[]);
   }, [user.id]);
 
+  const loadVisitCount = useCallback(async () => {
+    const { count } = await getSupabase()
+      .from('store_visits')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+    setVisitCount(count || 0);
+  }, [user.id]);
+
   useEffect(() => {
     loadProfile();
     loadFavorites();
-  }, [loadProfile, loadFavorites]);
+    loadVisitCount();
+  }, [loadProfile, loadFavorites, loadVisitCount]);
 
   const removeFavorite = async (favoriteId: string) => {
     await getSupabase().from('favorites').delete().eq('id', favoriteId);
@@ -124,13 +138,38 @@ export function ProfileView({ user }: { user: User }) {
 
       <section className="space-y-3">
         <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <ScanLine size={20} className="text-sage-500" />
+          Store Check-in
+        </h3>
+        {profile?.qr_token && (
+          <QRCodeCard
+            qrToken={profile.qr_token}
+            userName={profile.full_name || 'Calvia Member'}
+          />
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
+          <Trophy size={20} className="text-sage-500" />
+          Loyalty Program
+        </h3>
+        <LoyaltyTierCard
+          tier={profile?.loyalty_tier || 'Silver'}
+          points={profile?.loyalty_points || 0}
+          visitCount={visitCount}
+        />
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
           <Heart size={20} className="text-sage-500" />
           My Favourites
         </h3>
         {favorites.length === 0 ? (
           <div className="p-6 bg-white rounded-xl border border-cream-200 text-center">
             <p className="text-body text-muted-foreground">
-              No favourites yet. Explore Lifestyle to save your top picks.
+              No favourites yet. Explore Discover to save your top picks.
             </p>
           </div>
         ) : (
@@ -161,35 +200,6 @@ export function ProfileView({ user }: { user: User }) {
             ))}
           </div>
         )}
-      </section>
-
-      <section className="space-y-3">
-        <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">
-          <Trophy size={20} className="text-sage-500" />
-          Loyalty Program
-        </h3>
-        <div className="relative p-5 bg-white rounded-xl border border-cream-200 shadow-sm overflow-hidden">
-          <div className="absolute top-3 right-3 flex items-center gap-1 text-[13px] font-medium text-muted-foreground bg-cream-200 px-2.5 py-0.5 rounded-full z-10">
-            <Lock size={10} />
-            Coming Soon
-          </div>
-          <div className="space-y-4 opacity-60">
-            <div className="flex items-center justify-between">
-              <span className="text-body font-semibold text-ocean-500">
-                {profile?.loyalty_tier || 'Silver'} Member
-              </span>
-              <span className="text-body text-muted-foreground">
-                {profile?.loyalty_points || 0} pts
-              </span>
-            </div>
-            <div className="h-3 bg-cream-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-sage-400 to-sage-300 rounded-full w-1/4" />
-            </div>
-            <p className="text-[15px] text-muted-foreground">
-              750 points to Gold status
-            </p>
-          </div>
-        </div>
       </section>
 
       <section className="space-y-3">

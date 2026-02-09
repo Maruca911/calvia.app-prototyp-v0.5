@@ -1,5 +1,5 @@
 import { getSupabase } from '@/lib/supabase';
-import { LifestyleCategories } from './lifestyle-categories';
+import { DiscoverContent } from './discover-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,18 +12,38 @@ async function getCategories() {
   return data ?? [];
 }
 
+async function getAllListings() {
+  const { data } = await getSupabase()
+    .from('listings')
+    .select('*, categories!inner(name, slug, parent_id)')
+    .order('is_featured', { ascending: false })
+    .order('name');
+  return data ?? [];
+}
+
+async function getNeighborhoods() {
+  const { data } = await getSupabase()
+    .from('listings')
+    .select('neighborhood')
+    .not('neighborhood', 'is', null)
+    .order('neighborhood');
+
+  const unique = Array.from(new Set((data ?? []).map((d: { neighborhood: string }) => d.neighborhood)));
+  return unique as string[];
+}
+
 export default async function LifestylePage() {
-  const categories = await getCategories();
+  const [categories, listings, neighborhoods] = await Promise.all([
+    getCategories(),
+    getAllListings(),
+    getNeighborhoods(),
+  ]);
 
   return (
-    <div className="px-5 py-6 animate-fade-in">
-      <h1 className="text-heading-lg font-semibold text-foreground mb-1">
-        Lifestyle
-      </h1>
-      <p className="text-body-sm text-muted-foreground mb-6">
-        Curated services for refined living in Calvia
-      </p>
-      <LifestyleCategories categories={categories} />
-    </div>
+    <DiscoverContent
+      categories={categories}
+      listings={listings}
+      neighborhoods={neighborhoods}
+    />
   );
 }
