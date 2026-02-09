@@ -4,6 +4,7 @@ import { BlogGrid } from './blog-grid';
 import { CategoryQuickAccess } from './category-quick-access';
 import { FeatureCards } from './feature-cards';
 import { DealsOfTheDay } from './deals-of-the-day';
+import { EventsPreview } from './events-preview';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,11 +49,22 @@ async function getTodaysDeals() {
   return fallback ?? [];
 }
 
+async function getUpcomingEvents() {
+  const { data } = await getSupabase()
+    .from('events')
+    .select('id, title, description, location, event_date, category, image_url, is_featured')
+    .gte('event_date', new Date().toISOString())
+    .order('event_date', { ascending: true })
+    .limit(6);
+  return data ?? [];
+}
+
 export default async function HomePage() {
-  const [posts, categories, todaysDeals] = await Promise.all([
+  const [posts, categories, todaysDeals, upcomingEvents] = await Promise.all([
     getBlogPosts(),
     getCategories(),
     getTodaysDeals(),
+    getUpcomingEvents(),
   ]);
 
   return (
@@ -60,6 +72,7 @@ export default async function HomePage() {
       <HeroSection />
       <CategoryQuickAccess categories={categories} />
       <DealsOfTheDay deals={todaysDeals} />
+      <EventsPreview events={upcomingEvents} />
       <FeatureCards />
       <BlogGrid posts={posts} />
     </div>
