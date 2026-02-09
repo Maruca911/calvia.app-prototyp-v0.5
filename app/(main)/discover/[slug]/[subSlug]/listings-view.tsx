@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Phone, Globe, MapPin, Star, Heart, Instagram, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/auth-context';
+import { getSupabase } from '@/lib/supabase';
 
 interface Listing {
   id: string;
@@ -21,6 +23,49 @@ interface Listing {
 }
 
 export function ListingsView({ listings }: { listings: Listing[] }) {
+  const { user } = useAuth();
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  const loadFavorites = useCallback(async () => {
+    if (!user) return;
+    const { data } = await getSupabase()
+      .from('favorites')
+      .select('listing_id')
+      .eq('user_id', user.id);
+    if (data) {
+      setFavoriteIds(new Set(data.map(f => f.listing_id)));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadFavorites();
+  }, [loadFavorites]);
+
+  const toggleFavorite = async (listingId: string) => {
+    if (!user) {
+      toast('Sign in to save favorites', { description: 'Go to Profile to create an account.' });
+      return;
+    }
+
+    const isFav = favoriteIds.has(listingId);
+
+    if (isFav) {
+      setFavoriteIds(prev => { const next = new Set(prev); next.delete(listingId); return next; });
+      await getSupabase()
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('listing_id', listingId);
+      toast('Removed from favorites');
+    } else {
+      setFavoriteIds(prev => new Set(prev).add(listingId));
+      await getSupabase()
+        .from('favorites')
+        .insert({ user_id: user.id, listing_id: listingId });
+      toast('Saved to favorites');
+    }
+  };
+
   if (!listings.length) {
     return (
       <div className="text-center py-12">
@@ -34,20 +79,26 @@ export function ListingsView({ listings }: { listings: Listing[] }) {
   return (
     <div className="space-y-4">
       {listings.map((listing) => (
-        <ListingCard key={listing.id} listing={listing} />
+        <ListingCard
+          key={listing.id}
+          listing={listing}
+          isFavorited={favoriteIds.has(listing.id)}
+          onToggleFavorite={() => toggleFavorite(listing.id)}
+        />
       ))}
     </div>
   );
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
-  const [favorited, setFavorited] = useState(false);
-
-  const toggleFavorite = () => {
-    setFavorited(!favorited);
-    toast(favorited ? 'Removed from favorites' : 'Saved to favorites');
-  };
-
+function ListingCard({
+  listing,
+  isFavorited,
+  onToggleFavorite,
+}: {
+  listing: Listing;
+  isFavorited: boolean;
+  onToggleFavorite: () => void;
+}) {
   const instagram = listing.social_media?.instagram;
   const hasWebsite = listing.website_url && listing.website_url.length > 0;
 
@@ -81,14 +132,14 @@ function ListingCard({ listing }: { listing: Listing }) {
           </div>
         </div>
         <button
-          onClick={toggleFavorite}
+          onClick={onToggleFavorite}
           className="flex-shrink-0 p-3 -m-3 text-muted-foreground hover:text-ocean-500 transition-colors"
-          aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart
             size={24}
-            fill={favorited ? '#003366' : 'none'}
-            className={favorited ? 'text-ocean-500' : ''}
+            fill={isFavorited ? '#003366' : 'none'}
+            className={isFavorited ? 'text-ocean-500' : ''}
           />
         </button>
       </div>
