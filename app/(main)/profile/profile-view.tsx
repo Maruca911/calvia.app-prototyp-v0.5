@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { QRCodeCard } from '@/components/qr-code-card';
 import { LoyaltyTierCard } from '@/components/loyalty-tier-card';
+import Link from 'next/link';
 import {
   LogOut,
   Heart,
@@ -19,6 +20,7 @@ import {
   MapPin,
   Trash2,
   ScanLine,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -177,24 +179,30 @@ export function ProfileView({ user }: { user: User }) {
             {favorites.map((fav) => (
               <div
                 key={fav.id}
-                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-cream-200"
+                className="flex items-center gap-3 p-4 bg-white rounded-xl border border-cream-200 hover:shadow-sm transition-shadow"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-body font-semibold text-foreground truncate">
-                    {fav.listings?.name}
-                  </p>
-                  {fav.listings?.address && (
-                    <p className="text-[15px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                      <MapPin size={13} />
-                      {fav.listings.address}
+                <Link
+                  href={`/discover/listing/${fav.listing_id}`}
+                  className="flex-1 min-w-0 flex items-center gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-body font-semibold text-foreground truncate hover:text-ocean-500 transition-colors">
+                      {fav.listings?.name}
                     </p>
-                  )}
-                </div>
+                    {fav.listings?.address && (
+                      <p className="text-[15px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                        <MapPin size={13} />
+                        <span className="truncate">{fav.listings.address}</span>
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight size={16} className="text-muted-foreground flex-shrink-0" />
+                </Link>
                 <button
                   onClick={() => removeFavorite(fav.id)}
-                  className="p-3 text-muted-foreground hover:text-destructive transition-colors"
+                  className="p-3 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={18} />
                 </button>
               </div>
             ))}

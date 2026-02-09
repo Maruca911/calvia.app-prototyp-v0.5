@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Phone, Globe, MapPin, Star, Heart, Instagram, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -107,9 +108,12 @@ function ListingCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[19px] font-semibold text-foreground leading-snug">
+            <Link
+              href={`/discover/listing/${listing.id}`}
+              className="text-[19px] font-semibold text-foreground leading-snug hover:text-ocean-500 transition-colors"
+            >
               {listing.name}
-            </h3>
+            </Link>
             {listing.is_featured && (
               <span className="inline-flex items-center gap-0.5 text-[13px] font-medium text-ocean-500 bg-ocean-50 px-2.5 py-0.5 rounded-full flex-shrink-0">
                 <Star size={11} fill="currentColor" />
