@@ -1,7 +1,7 @@
 {
-  "name": "Calvia",
+  "name": "Calvia App",
   "short_name": "Calvia",
-  "description": "Your Discreet Concierge in Calvia, Mallorca",
+  "description": "Your discreet concierge in Calvia, Mallorca. Discover dining, wellness, real estate, local services, and earn loyalty rewards.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8F6F3",

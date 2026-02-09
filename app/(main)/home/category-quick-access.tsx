@@ -35,8 +35,8 @@ interface Category {
 
 export function CategoryQuickAccess({ categories }: { categories: Category[] }) {
   return (
-    <section className="px-5 -mt-6 relative z-10">
-      <div className="grid grid-cols-2 gap-3">
+    <section className="px-5 -mt-6 relative z-10" aria-label="Browse service categories">
+      <div className="grid grid-cols-2 gap-3" role="list">
         {categories.map((cat, i) => {
           const Icon = iconMap[cat.icon_name] || Compass;
           return (

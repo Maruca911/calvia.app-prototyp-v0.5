@@ -38,16 +38,17 @@ export function BlogGrid({ posts }: { posts: BlogPost[] }) {
   };
 
   return (
-    <section className="px-5 py-8">
+    <section className="px-5 py-8" aria-label="Blog articles about Calvia, Mallorca">
       <h2 className="text-heading font-semibold text-foreground mb-4">
         Latest from Calvia
       </h2>
 
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-4 -mx-5 px-5">
+      <nav className="flex gap-2 overflow-x-auto scrollbar-hide pb-4 -mx-5 px-5" aria-label="Filter articles by category">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
+            aria-pressed={activeCategory === cat}
             className={`px-4 py-2 rounded-full text-[14px] font-medium whitespace-nowrap transition-all ${
               activeCategory === cat
                 ? 'bg-ocean-500 text-white shadow-sm'
@@ -57,7 +58,7 @@ export function BlogGrid({ posts }: { posts: BlogPost[] }) {
             {cat}
           </button>
         ))}
-      </div>
+      </nav>
 
       {filteredPosts.length === 0 ? (
         <div className="py-12 text-center">

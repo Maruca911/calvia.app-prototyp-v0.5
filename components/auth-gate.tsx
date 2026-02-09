@@ -62,10 +62,13 @@ function WelcomeGate({ onEnter }: { onEnter: () => void }) {
               </div>
             </div>
             <div className="space-y-3">
-              <h1 className="text-heading-xl text-white">
-                Welcome to Calvia
+              <h1 className="text-heading-xl text-white drop-shadow-md">
+                Calvia App
               </h1>
-              <p className="text-body text-ocean-100 max-w-xs mx-auto leading-relaxed">
+              <h2 className="text-heading-sm text-white/90 font-medium drop-shadow-sm">
+                Your discreet concierge
+              </h2>
+              <p className="text-body-sm text-white/80 max-w-xs mx-auto leading-relaxed drop-shadow-sm">
                 Your local guide to the best of southwest Mallorca
               </p>
             </div>
