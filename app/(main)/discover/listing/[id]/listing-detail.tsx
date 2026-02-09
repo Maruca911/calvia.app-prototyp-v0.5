@@ -13,7 +13,6 @@ import {
   Star,
   Heart,
   Mail,
-  Clock,
   ChevronRight,
   Share2,
 } from 'lucide-react';
@@ -21,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { ReviewSection } from './review-section';
 
 interface ListingCategory {
   id: string;
@@ -290,6 +290,8 @@ export function ListingDetail({
             )}
           </div>
         </div>
+
+        <ReviewSection listingId={listing.id} />
 
         <nav className="flex items-center gap-1.5 text-[13px] text-muted-foreground overflow-x-auto scrollbar-hide">
           <Link href="/discover" className="hover:text-ocean-500 transition-colors flex-shrink-0">

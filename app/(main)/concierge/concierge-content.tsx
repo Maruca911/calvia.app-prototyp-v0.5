@@ -14,6 +14,7 @@ import {
   Sparkles,
   ClipboardList,
   ChevronRight,
+  PhoneCall,
 } from 'lucide-react';
 
 export interface ConciergeRequest {
@@ -101,45 +102,64 @@ export function ConciergeContent() {
 
   return (
     <div className="px-5 py-6 animate-fade-in">
-      <div className="flex items-center gap-3 mb-1">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ocean-500 to-ocean-400 flex items-center justify-center">
-          <Sparkles size={20} className="text-white" />
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-ocean-500 to-ocean-400 flex items-center justify-center">
+          <Sparkles size={22} className="text-white" />
         </div>
         <div>
-          <h1 className="text-heading-sm font-semibold text-foreground">
+          <h1 className="text-heading font-semibold text-foreground">
             Concierge
           </h1>
-          <p className="text-[14px] text-muted-foreground">
+          <p className="text-body-sm text-muted-foreground">
             Your personal assistant in Calvia
           </p>
         </div>
       </div>
 
-      <section className="mt-6">
-        <h2 className="text-[17px] font-semibold text-foreground mb-3">
+      <div className="mt-5 p-4 bg-gradient-to-r from-ocean-50 to-sage-50 rounded-xl border border-ocean-100">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-ocean-500 flex items-center justify-center flex-shrink-0">
+            <PhoneCall size={22} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-body font-semibold text-foreground">Prefer to talk?</p>
+            <p className="text-body-sm text-muted-foreground">Call our concierge line anytime</p>
+          </div>
+        </div>
+        <a
+          href="tel:+34600000000"
+          className="mt-3 flex items-center justify-center gap-2 w-full min-h-[56px] bg-ocean-500 text-white rounded-xl text-body font-semibold hover:bg-ocean-600 active:bg-ocean-700 transition-colors"
+        >
+          <PhoneCall size={20} />
+          Call Concierge
+        </a>
+      </div>
+
+      <section className="mt-7">
+        <h2 className="text-heading-sm font-semibold text-foreground mb-4">
           How can we help?
         </h2>
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.type}
                 onClick={() => openAction(action.type)}
-                className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-cream-200 shadow-sm hover:shadow-md hover:border-cream-300 transition-all text-left active:scale-[0.98]"
+                className="w-full flex items-center gap-4 p-5 bg-white rounded-xl border border-cream-200 shadow-sm hover:shadow-md hover:border-cream-300 transition-all text-left active:scale-[0.98]"
               >
-                <div className={`w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 ${action.color}`}>
-                  <Icon size={20} />
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${action.color}`}>
+                  <Icon size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-body font-semibold text-foreground">
                     {action.label}
                   </h3>
-                  <p className="text-[14px] text-muted-foreground mt-0.5">
+                  <p className="text-body-sm text-muted-foreground mt-0.5 leading-snug">
                     {action.description}
                   </p>
                 </div>
-                <ChevronRight size={18} className="text-muted-foreground flex-shrink-0" />
+                <ChevronRight size={20} className="text-muted-foreground flex-shrink-0" />
               </button>
             );
           })}

@@ -195,10 +195,10 @@ export function RequestFormDrawer({ open, onOpenChange, requestType, onSubmitted
               </Button>
             </div>
           ) : (
-            <div className="space-y-4 mt-2">
+            <div className="space-y-5 mt-2">
               {config.fields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-[15px] font-medium text-foreground mb-1.5">
+                  <label className="block text-body font-medium text-foreground mb-2">
                     {field.label}
                   </label>
                   {field.type === 'textarea' ? (
@@ -207,7 +207,7 @@ export function RequestFormDrawer({ open, onOpenChange, requestType, onSubmitted
                       onChange={(e) => handleChange(field.key, e.target.value)}
                       placeholder={field.placeholder}
                       rows={3}
-                      className="w-full rounded-lg border border-cream-300 bg-cream-50 px-4 py-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ocean-400 focus:border-transparent resize-none"
+                      className="w-full rounded-xl border border-cream-300 bg-cream-50 px-4 py-3.5 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ocean-400 focus:border-transparent resize-none"
                     />
                   ) : (
                     <Input
@@ -215,14 +215,14 @@ export function RequestFormDrawer({ open, onOpenChange, requestType, onSubmitted
                       value={formData[field.key] || ''}
                       onChange={(e) => handleChange(field.key, e.target.value)}
                       placeholder={field.placeholder}
-                      className="min-h-[48px] bg-cream-50 border-cream-300 text-body rounded-lg"
+                      className="min-h-[52px] bg-cream-50 border-cream-300 text-body rounded-xl"
                     />
                   )}
                 </div>
               ))}
 
               {!user && (
-                <p className="text-[13px] text-muted-foreground bg-cream-100 rounded-lg p-3">
+                <p className="text-body-sm text-muted-foreground bg-cream-100 rounded-xl p-4">
                   Sign in to track this request and receive updates.
                 </p>
               )}
@@ -230,7 +230,7 @@ export function RequestFormDrawer({ open, onOpenChange, requestType, onSubmitted
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="w-full min-h-[52px] text-body mt-2"
+                className="w-full min-h-[56px] text-body mt-2"
               >
                 {submitting ? (
                   <>
