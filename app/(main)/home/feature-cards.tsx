@@ -1,20 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { Tag, Trophy, Heart, ChevronRight } from 'lucide-react';
+import { Tag, Trophy, Heart, CalendarDays, ChevronRight } from 'lucide-react';
 
 const features = [
   {
     icon: Tag,
     title: 'Exclusive Deals',
     description: 'Discounts at local shops and invite-only events, available only to Calvia members.',
-    href: '/discover',
+    href: '/deals',
     accent: 'bg-ocean-50 text-ocean-500',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Events & Happenings',
+    description: 'Markets, concerts, food festivals and more. See what is on in Calvia this week.',
+    href: '/events',
+    accent: 'bg-sky-50 text-sky-600',
   },
   {
     icon: Trophy,
     title: 'Loyalty Program',
-    description: 'Every time you use the app and support the local economy, you earn points to unlock new benefits and special offers.',
+    description: 'Support the local economy and earn points to unlock new benefits and special offers.',
     href: '/profile',
     accent: 'bg-sage-50 text-sage-600',
   },

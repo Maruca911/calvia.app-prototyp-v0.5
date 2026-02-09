@@ -21,8 +21,10 @@ import {
   Trash2,
   ScanLine,
   ChevronRight,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { EditProfileDrawer } from './edit-profile-drawer';
 
 interface Profile {
   full_name: string;
@@ -53,6 +55,7 @@ export function ProfileView({ user }: { user: User }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
   const [visitCount, setVisitCount] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
 
   const loadProfile = useCallback(async () => {
     const { data } = await getSupabase()
@@ -136,7 +139,22 @@ export function ProfileView({ user }: { user: User }) {
             {user.email}
           </p>
         </div>
+        <button
+          onClick={() => setEditOpen(true)}
+          className="p-2.5 rounded-full bg-cream-100 text-muted-foreground hover:text-ocean-500 hover:bg-ocean-50 transition-all flex-shrink-0"
+          aria-label="Edit profile"
+        >
+          <Pencil size={16} />
+        </button>
       </div>
+
+      <EditProfileDrawer
+        userId={user.id}
+        currentName={profile?.full_name || ''}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSaved={loadProfile}
+      />
 
       <section className="space-y-3">
         <h3 className="text-[19px] font-semibold text-foreground flex items-center gap-2">

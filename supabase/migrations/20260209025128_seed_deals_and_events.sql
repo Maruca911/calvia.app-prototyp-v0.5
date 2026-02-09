@@ -1,0 +1,36 @@
+/*
+  # Seed deals and events
+
+  1. Data
+    - 12 active deals across various categories
+    - 10 upcoming events in Calvia area
+  2. Notes
+    - Deals have valid_until dates set 30-90 days in the future
+    - Events span the next 60 days
+*/
+
+INSERT INTO deals (title, description, discount_text, valid_until, is_active, category, image_url) VALUES
+  ('Welcome Dinner at Sa Vinya', 'Enjoy a complimentary glass of Mallorcan wine with any main course for Calvia members.', 'Free wine', now() + interval '60 days', true, 'Dining', 'https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Spa Day at Bendinat Wellness', '25% off any full-day spa package including sauna, pool and one treatment.', '25% off', now() + interval '45 days', true, 'Wellness', 'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Sunset Sailing Experience', 'Book a 2-hour sunset sail along the Calvia coast at a special member rate.', '30 EUR off', now() + interval '90 days', true, 'Activities', 'https://images.pexels.com/photos/163236/luxury-yacht-boat-speed-water-163236.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Padel Court Booking', 'First session free at Club Padel Calvia for new Calvia app members.', 'First free', now() + interval '30 days', true, 'Activities', 'https://images.pexels.com/photos/8224733/pexels-photo-8224733.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Fresh Market Box', 'Weekly organic produce box delivered from Santa Ponsa market vendors.', '15% off', now() + interval '60 days', true, 'Shopping', 'https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Hair Styling at Bliss Salon', 'Cut and blow-dry at Bliss Salon Palmanova with complimentary conditioning treatment.', '20% off', now() + interval '45 days', true, 'Beauty', 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Golf Green Fee Discount', 'Reduced green fees at Golf Santa Ponsa for Calvia members any weekday.', '35% off', now() + interval '90 days', true, 'Activities', 'https://images.pexels.com/photos/1325659/pexels-photo-1325659.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Yoga Retreat Morning Pass', 'Join the sunrise yoga sessions on Illetas beach, first 3 classes included.', '3 free classes', now() + interval '30 days', true, 'Wellness', 'https://images.pexels.com/photos/3822906/pexels-photo-3822906.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Home Cleaning Trial', 'Professional deep clean for apartments up to 100m2 at introductory rate.', '40% off', now() + interval '60 days', true, 'Home Services', 'https://images.pexels.com/photos/4239091/pexels-photo-4239091.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Wine Tasting Evening', 'Exclusive tasting of 6 Mallorcan wines paired with local tapas at Bodega Calvia.', '10 EUR off', now() + interval '45 days', true, 'Dining', 'https://images.pexels.com/photos/1123260/pexels-photo-1123260.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Pet Grooming Package', 'Full grooming session for dogs including bath, trim, and nail clip.', '20% off', now() + interval '30 days', true, 'Shopping', 'https://images.pexels.com/photos/6816860/pexels-photo-6816860.jpeg?auto=compress&cs=tinysrgb&w=600'),
+  ('Photography Session', 'Professional lifestyle photoshoot at any Calvia beach location, 30 edited photos included.', '50 EUR off', now() + interval '90 days', true, 'Professional', 'https://images.pexels.com/photos/1264210/pexels-photo-1264210.jpeg?auto=compress&cs=tinysrgb&w=600');
+
+INSERT INTO events (title, description, location, event_date, end_date, category, image_url, is_featured) VALUES
+  ('Santa Ponsa Weekly Market', 'Browse local crafts, fresh produce, and artisan goods every Saturday morning at the Santa Ponsa promenade.', 'Passeig de la Mar, Santa Ponsa', now() + interval '3 days', now() + interval '3 days' + interval '4 hours', 'Markets', 'https://images.pexels.com/photos/2252584/pexels-photo-2252584.jpeg?auto=compress&cs=tinysrgb&w=600', true),
+  ('Live Jazz at Portals Beach Club', 'Sunset jazz performance with cocktails overlooking the sea. Resident trio plays smooth jazz and bossa nova.', 'Portals Nous Beach Club', now() + interval '5 days', now() + interval '5 days' + interval '3 hours', 'Music', 'https://images.pexels.com/photos/442540/pexels-photo-442540.jpeg?auto=compress&cs=tinysrgb&w=600', true),
+  ('Calvia Gastro Festival', 'Three-day food festival celebrating Mallorcan cuisine with top local chefs, tastings, and cooking demos.', 'Plaza Mayor, Calvia Village', now() + interval '10 days', now() + interval '12 days', 'Food & Drink', 'https://images.pexels.com/photos/5638527/pexels-photo-5638527.jpeg?auto=compress&cs=tinysrgb&w=600', true),
+  ('Full Moon Paddle Board', 'Guided SUP excursion under the full moon along the coast of Paguera. Equipment provided.', 'Platja de Palmira, Paguera', now() + interval '14 days', now() + interval '14 days' + interval '2 hours', 'Sport', 'https://images.pexels.com/photos/1209978/pexels-photo-1209978.jpeg?auto=compress&cs=tinysrgb&w=600', false),
+  ('Outdoor Cinema Night', 'Open-air screening of a classic film under the stars. Bring blankets and enjoy popcorn and drinks from the bar.', 'Parc de la Mar, Palmanova', now() + interval '7 days', now() + interval '7 days' + interval '3 hours', 'Entertainment', 'https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg?auto=compress&cs=tinysrgb&w=600', false),
+  ('Charity Run for Calvia Schools', '5K and 10K fun run through the pine forests of Son Caliu. All proceeds go to local schools.', 'Son Caliu Sports Centre', now() + interval '21 days', now() + interval '21 days' + interval '4 hours', 'Sport', 'https://images.pexels.com/photos/2402777/pexels-photo-2402777.jpeg?auto=compress&cs=tinysrgb&w=600', false),
+  ('Art Exhibition: Mediterranean Light', 'Local artist collective showcases paintings and sculptures inspired by the Mallorcan coastline.', 'Galeria Calvia, Portals Nous', now() + interval '8 days', now() + interval '22 days', 'Culture', 'https://images.pexels.com/photos/3004909/pexels-photo-3004909.jpeg?auto=compress&cs=tinysrgb&w=600', true),
+  ('Flamenco Night at Can Torrat', 'Authentic flamenco performance with dinner. Traditional Spanish guitar, dance, and singing.', 'Restaurant Can Torrat, Calvia', now() + interval '12 days', now() + interval '12 days' + interval '3 hours', 'Music', 'https://images.pexels.com/photos/2188012/pexels-photo-2188012.jpeg?auto=compress&cs=tinysrgb&w=600', false),
+  ('Kids Treasure Hunt', 'Family-friendly pirate treasure hunt across Magaluf beach with prizes and face painting.', 'Platja de Magaluf', now() + interval '6 days', now() + interval '6 days' + interval '3 hours', 'Family', 'https://images.pexels.com/photos/296301/pexels-photo-296301.jpeg?auto=compress&cs=tinysrgb&w=600', false),
+  ('Sunrise Hike to La Mola', 'Guided dawn hike to the La Mola viewpoint with breakfast picnic at the summit. Moderate difficulty.', 'Meeting point: Calvia Village Church', now() + interval '9 days', now() + interval '9 days' + interval '5 hours', 'Sport', 'https://images.pexels.com/photos/551852/pexels-photo-551852.jpeg?auto=compress&cs=tinysrgb&w=600', true);

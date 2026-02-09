@@ -51,7 +51,7 @@ export default async function SubCategoryPage({
       <p className="text-body-sm text-muted-foreground mb-6">
         {subCategory.description}
       </p>
-      <ListingsView listings={listings} />
+      <ListingsView listings={listings} parentSlug={params.slug} />
     </div>
   );
 }
