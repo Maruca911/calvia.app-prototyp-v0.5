@@ -11,7 +11,7 @@ async function getBlogPosts() {
     .from('blog_posts')
     .select('*')
     .order('published_at', { ascending: false })
-    .limit(5);
+    .limit(25);
   return data ?? [];
 }
 
