@@ -6,7 +6,7 @@ import { Search, X, MapPin, Star, Phone, Globe, Instagram } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase, getSupabaseConfigError } from '@/lib/supabase';
 import { DiscoverCategories } from './discover-categories';
 
 interface Category {
@@ -126,24 +126,71 @@ export function DiscoverContent() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = getSupabase();
-    async function fetchAll() {
-      const [catRes, listRes, hoodRes] = await Promise.all([
-        supabase.from('categories').select('*').is('parent_id', null).order('sort_order'),
-        supabase.from('listings').select('*, categories!inner(name, slug, parent_id)').order('is_featured', { ascending: false }).order('name'),
-        supabase.from('listings').select('neighborhood').not('neighborhood', 'is', null).order('neighborhood'),
-      ]);
-      setCategories(catRes.data ?? []);
-      setListings(listRes.data ?? []);
-      const unique = Array.from(new Set((hoodRes.data ?? []).map((d: any) => d.neighborhood)));
-      setNeighborhoods(unique as string[]);
+    const configError = getSupabaseConfigError();
+    if (configError) {
+      setError(`${configError}. Add these values in your deployment environment and redeploy.`);
       setLoaded(true);
+      return;
     }
-    fetchAll();
+
+    const supabase = getSupabase();
+    let isCancelled = false;
+
+    async function fetchAll() {
+      try {
+        const [catRes, listRes] = await Promise.all([
+          supabase.from('categories').select('*').is('parent_id', null).order('sort_order'),
+          supabase.from('listings').select('*, categories!inner(name, slug, parent_id)').order('is_featured', { ascending: false }).order('name'),
+        ]);
+
+        if (isCancelled) {
+          return;
+        }
+
+        const requestErrors = [
+          catRes.error ? `categories: ${catRes.error.message}` : null,
+          listRes.error ? `listings: ${listRes.error.message}` : null,
+        ].filter((value): value is string => Boolean(value));
+
+        const listingRows = (listRes.data ?? []) as Listing[];
+        const uniqueNeighborhoods = Array.from(
+          new Set(
+            listingRows
+              .map((listing) => listing.neighborhood)
+              .filter((value): value is string => Boolean(value))
+          )
+        ).sort((a, b) => a.localeCompare(b));
+
+        setCategories((catRes.data ?? []) as Category[]);
+        setListings(listingRows);
+        setNeighborhoods(uniqueNeighborhoods);
+
+        if (requestErrors.length > 0) {
+          console.error('[DiscoverContent] Data fetch warnings:', requestErrors.join(' | '));
+          setError('Some discover content is currently unavailable.');
+        }
+      } catch (fetchError) {
+        console.error('[DiscoverContent] Failed to load discover data:', fetchError);
+        if (!isCancelled) {
+          setError('Unable to load discover content.');
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoaded(true);
+        }
+      }
+    }
+
+    void fetchAll();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   const isSearching = query.length >= 2 || selectedNeighborhood !== null;
@@ -205,6 +252,12 @@ export function DiscoverContent() {
       <p className="text-body-sm text-muted-foreground mb-5">
         Everything you need in Calvia, at your fingertips
       </p>
+
+      {error && (
+        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-body-sm text-amber-800">
+          {error}
+        </div>
+      )}
 
       <div className="relative mb-4">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -282,8 +335,14 @@ export function DiscoverContent() {
             </div>
           )}
         </div>
-      ) : (
+      ) : categories.length > 0 ? (
         <DiscoverCategories categories={categories} />
+      ) : (
+        <div className="rounded-xl border border-cream-200 bg-white px-4 py-8 text-center">
+          <p className="text-body-sm text-muted-foreground">
+            Categories are currently unavailable.
+          </p>
+        </div>
       )}
     </div>
   );
