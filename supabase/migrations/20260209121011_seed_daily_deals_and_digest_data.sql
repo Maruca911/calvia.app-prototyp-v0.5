@@ -10,9 +10,102 @@
 
   2. Notes
     - Daily deals rotate by matching deal_date to current date
-    - Digest data covers a full week for demonstration
-    - Weather data is realistic for Calvia/Mallorca in February
+  - Digest data covers a full week for demonstration
+  - Weather data is realistic for Calvia/Mallorca in February
 */
+
+-- Ensure the listings referenced below exist (FK-safe, additive only).
+-- These UUIDs are used by this migration to link deals -> listings.
+INSERT INTO listings (id, category_id, name, description, image_url, website_url, address, is_featured)
+VALUES
+  (
+    'c3000000-0000-0000-0000-000000000006',
+    'a1000000-0000-0000-0000-000000000002',
+    'Restaurant Sa Vinya',
+    'Local dining spot in Calvia. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Calvia, Mallorca',
+    true
+  ),
+  (
+    '84418015-8c5f-46e1-99b0-3a71fa02eb87',
+    'a1000000-0000-0000-0000-000000000005',
+    'Bendinat Wellness',
+    'Spa and wellness center. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Bendinat, Mallorca',
+    true
+  ),
+  (
+    'd5000000-0000-0000-0000-000000000003',
+    'a1000000-0000-0000-0000-000000000003',
+    'Axopar Day Charter',
+    'Boat charter experience. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/163236/luxury-yacht-boat-speed-water-163236.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Calvia Coast, Mallorca',
+    true
+  ),
+  (
+    'a8dad092-b92d-437c-bcdd-da0c204de163',
+    'a1000000-0000-0000-0000-000000000003',
+    'Golf Santa Ponsa',
+    'Golf course offer. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/62556/golf-tee-golf-ball-golf-club-62556.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Santa Ponsa, Mallorca',
+    true
+  ),
+  (
+    'c6000000-0000-0000-0000-000000000003',
+    'a1000000-0000-0000-0000-000000000004',
+    'Home Cleaning Service',
+    'Home services listing. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/4239010/pexels-photo-4239010.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Calvia, Mallorca',
+    false
+  ),
+  (
+    '644f20c1-acb9-479a-a299-cfaea106b6ce',
+    'b4000000-0000-0000-0000-000000000003',
+    'Bliss Salon',
+    'Hair and beauty studio. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Calvia, Mallorca',
+    true
+  ),
+  (
+    'd8000000-0000-0000-0000-000000000009',
+    'a1000000-0000-0000-0000-000000000005',
+    'Portals De Yoga',
+    'Yoga studio. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Portals Nous, Mallorca',
+    true
+  ),
+  (
+    'd3000000-0000-0000-0000-000000000001',
+    'a1000000-0000-0000-0000-000000000002',
+    'Beso Beach',
+    'Beach dining experience. Referenced by daily deals rotation.',
+    'https://images.pexels.com/photos/1268855/pexels-photo-1268855.jpeg?auto=compress&cs=tinysrgb&w=600',
+    '',
+    'Mallorca',
+    true
+  )
+ON CONFLICT (id) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url,
+  website_url = EXCLUDED.website_url,
+  address = EXCLUDED.address,
+  is_featured = EXCLUDED.is_featured;
 
 -- Link existing deals to real listings
 UPDATE deals SET listing_id = 'c3000000-0000-0000-0000-000000000006'
