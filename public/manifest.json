@@ -1,11 +1,11 @@
 {
-  "name": "Calvia App",
+  "name": "Calvia.app",
   "short_name": "Calvia",
-  "description": "Your discreet concierge in Calvia, Mallorca. Discover dining, wellness, real estate, local services, and earn loyalty rewards.",
+  "description": "The modern yellow pages of Mallorca's southwest. Discover trusted local businesses, services, and guides across Calvia.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8F6F3",
-  "theme_color": "#003366",
+  "theme_color": "#014BB5",
   "orientation": "portrait",
   "icons": [
     {

@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 30 25% 97%;
+    --background: 36 86% 99%;
     --foreground: 210 50% 10%;
     --card: 0 0% 100%;
     --card-foreground: 210 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 50% 10%;
-    --primary: 210 100% 20%;
+    --primary: 215 99% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 148 35% 75%;
-    --secondary-foreground: 210 50% 10%;
-    --muted: 30 15% 93%;
+    --secondary: 27 100% 51%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 35 60% 95%;
     --muted-foreground: 210 10% 45%;
-    --accent: 148 35% 75%;
+    --accent: 35 90% 92%;
     --accent-foreground: 210 50% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 10% 88%;
-    --input: 30 10% 88%;
-    --ring: 210 100% 20%;
+    --border: 34 35% 88%;
+    --input: 34 35% 88%;
+    --ring: 215 99% 36%;
     --radius: 0.75rem;
   }
 
@@ -37,7 +37,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid hsl(210 100% 20%);
+    outline: 2px solid hsl(215 99% 36%);
     outline-offset: 2px;
     border-radius: 4px;
   }

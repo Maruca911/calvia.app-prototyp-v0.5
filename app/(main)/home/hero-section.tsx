@@ -7,8 +7,8 @@ import { MapPin, Sun, Waves, Mountain } from 'lucide-react';
 const SCENES = [
   {
     icon: Sun,
-    tagline: 'Sun, sea & simplicity',
-    description: 'Your premium guide to southwest Mallorca',
+    tagline: "The Modern Yellow Pages of Mallorca's Southwest",
+    description: 'Trusted local businesses, services, and guides across Calvia',
   },
   {
     icon: Waves,
@@ -56,7 +56,7 @@ export function HeroSection() {
 
         <div>
           <h1 className="text-heading-xl text-white drop-shadow-md tracking-tight">
-            Calvia App
+            Calvia.app
           </h1>
           <div className="flex items-center justify-center gap-1.5 mt-1.5">
             <MapPin size={14} className="text-sage-200" />

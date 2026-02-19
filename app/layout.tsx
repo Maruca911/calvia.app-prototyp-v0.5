@@ -11,9 +11,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: 'Calvia App | Your Discreet Concierge in Mallorca',
+  title: "Calvia.app | The Modern Yellow Pages of Mallorca's Southwest",
   description:
-    'Calvia App is the premium concierge service for second-home owners and visitors in Calvia, southwest Mallorca. Discover dining, wellness, real estate, local services, a loyalty rewards programme, and curated lifestyle experiences.',
+    "Find trusted local businesses across Calvia. The modern yellow pages for residents, second-home owners, and visitors in Mallorca's southwest.",
   manifest: '/manifest.json',
   metadataBase: new URL('https://calvia.app'),
   alternates: {
@@ -36,36 +36,35 @@ export const metadata: Metadata = {
     title: 'Calvia',
   },
   openGraph: {
-    title: 'Calvia App | Your Discreet Concierge in Mallorca',
+    title: "Calvia.app | The Modern Yellow Pages of Mallorca's Southwest",
     description:
-      'Premium concierge services, local business directory, dining guides, wellness retreats, and a loyalty rewards programme for Calvia, southwest Mallorca.',
+      "Discover trusted local businesses, services, and guides across Calvia and Mallorca's southwest coast.",
     url: 'https://calvia.app',
-    siteName: 'Calvia App',
+    siteName: 'Calvia.app',
     type: 'website',
     locale: 'en_GB',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Calvia App | Your Discreet Concierge in Mallorca',
+    title: "Calvia.app | The Modern Yellow Pages of Mallorca's Southwest",
     description:
-      'Discover the best of Calvia, Mallorca. Dining, wellness, real estate, local services, and loyalty rewards in one premium concierge app.',
+      "The modern yellow pages for Calvia: trusted local businesses, services, and guides in Mallorca's southwest.",
   },
   keywords: [
     'Calvia',
     'Mallorca',
-    'concierge',
-    'second home',
-    'luxury lifestyle',
+    'yellow pages',
+    'business directory',
+    'second-home owners',
     'restaurants Calvia',
     'real estate Mallorca',
     'wellness Mallorca',
     'Santa Ponsa',
     'Bendinat',
     'Puerto Portals',
-    'loyalty programme',
     'local services Calvia',
   ],
-  themeColor: '#003366',
+  themeColor: '#014BB5',
   viewport: {
     width: 'device-width',
     initialScale: 1,
@@ -77,11 +76,11 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'Calvia App',
+  name: 'Calvia.app',
   alternateName: 'Calvia',
   url: 'https://calvia.app',
   description:
-    'Premium concierge app for second-home owners and visitors in Calvia, southwest Mallorca. Discover dining, wellness, real estate, local services, and earn loyalty rewards.',
+    "The modern yellow pages for Mallorca's southwest. Discover trusted local businesses, services, and guides across Calvia.",
   applicationCategory: 'LifestyleApplication',
   operatingSystem: 'Web',
   offers: {
@@ -100,7 +99,7 @@ const jsonLd = {
   },
   provider: {
     '@type': 'Organization',
-    name: 'Calvia App',
+    name: 'Calvia.app',
     url: 'https://calvia.app',
   },
 };
