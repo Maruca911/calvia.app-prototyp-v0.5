@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSupabase } from '@/lib/supabase';
+import { isCoreDiscoverCategorySlug } from '@/lib/discover-taxonomy';
 import { SubCategoryList } from './sub-category-list';
 
 export function CategoryContent() {
@@ -20,6 +21,12 @@ export function CategoryContent() {
 
   useEffect(() => {
     async function fetchData() {
+      if (!isCoreDiscoverCategorySlug(slug)) {
+        setNotFound(true);
+        setLoaded(true);
+        return;
+      }
+
       const supabase = getSupabase();
       const { data: cat } = await supabase
         .from('categories')
@@ -40,8 +47,19 @@ export function CategoryContent() {
         .eq('parent_id', cat.id)
         .order('sort_order');
 
+      let filteredSubCategories = subs ?? [];
+      if (filteredSubCategories.length > 0) {
+        const { data: listingRows } = await supabase
+          .from('listings')
+          .select('category_id')
+          .in('category_id', filteredSubCategories.map((sub) => sub.id));
+
+        const activeCategoryIds = new Set((listingRows ?? []).map((row) => row.category_id));
+        filteredSubCategories = filteredSubCategories.filter((sub) => activeCategoryIds.has(sub.id));
+      }
+
       setCategory(cat);
-      setSubCategories(subs ?? []);
+      setSubCategories(filteredSubCategories);
       setLoaded(true);
     }
     fetchData();

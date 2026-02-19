@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, MapPin, Star, ArrowRight, Loader2, Utensils, ShoppingBag, Briefcase, Heart, Home } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
+import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
 
 interface SearchListing {
   id: string;
@@ -13,7 +14,7 @@ interface SearchListing {
   is_featured: boolean;
   description: string;
   tags: string[] | null;
-  categories: { name: string; slug: string };
+  categories: { name: string; slug: string; parent_id: string | null };
 }
 
 const SYNONYMS: Record<string, string[]> = {
@@ -103,13 +104,32 @@ export function GlobalSearch() {
 
   const loadListings = useCallback(async () => {
     if (loaded) return;
-    const { data } = await getSupabase()
-      .from('listings')
-      .select('id, name, neighborhood, is_featured, description, tags, categories!inner(name, slug)')
-      .order('is_featured', { ascending: false })
-      .order('name');
-    if (data) {
-      setListings(data as unknown as SearchListing[]);
+    try {
+      const supabase = getSupabase();
+      const [catRes, listRes] = await Promise.all([
+        supabase
+          .from('categories')
+          .select('id')
+          .is('parent_id', null)
+          .in('slug', [...CORE_DISCOVER_CATEGORY_SLUGS]),
+        supabase
+          .from('listings')
+          .select('id, name, neighborhood, is_featured, description, tags, categories!inner(name, slug, parent_id)')
+          .order('is_featured', { ascending: false })
+          .order('name'),
+      ]);
+
+      const allowedParentIds = new Set((catRes.data ?? []).map((category) => category.id));
+      const allowedSlugs = new Set(CORE_DISCOVER_CATEGORY_SLUGS);
+      const filteredListings = ((listRes.data ?? []) as SearchListing[]).filter((listing) => {
+        const category = listing.categories;
+        if (!category) return false;
+        if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
+        return allowedSlugs.has(category.slug as (typeof CORE_DISCOVER_CATEGORY_SLUGS)[number]);
+      });
+
+      setListings(filteredListings);
+    } finally {
       setLoaded(true);
     }
   }, [loaded]);

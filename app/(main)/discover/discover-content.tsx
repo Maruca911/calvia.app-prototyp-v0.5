@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSupabase, getSupabaseConfigError } from '@/lib/supabase';
-import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
+import {
+  CORE_DISCOVER_CATEGORY_SLUGS,
+  sortByCoreDiscoverOrder,
+} from '@/lib/discover-taxonomy';
 import { DiscoverCategories } from './discover-categories';
 
 interface Category {
@@ -34,7 +37,7 @@ interface Listing {
   categories: {
     name: string;
     slug: string;
-    parent_id: string;
+    parent_id: string | null;
   };
 }
 
@@ -163,7 +166,15 @@ export function DiscoverContent() {
           listRes.error ? `listings: ${listRes.error.message}` : null,
         ].filter((value): value is string => Boolean(value));
 
-        const listingRows = (listRes.data ?? []) as Listing[];
+        const categoryRows = sortByCoreDiscoverOrder((catRes.data ?? []) as Category[]);
+        const allowedParentIds = new Set(categoryRows.map((category) => category.id));
+        const allowedSlugs = new Set(CORE_DISCOVER_CATEGORY_SLUGS);
+        const listingRows = ((listRes.data ?? []) as Listing[]).filter((listing) => {
+          const category = listing.categories;
+          if (!category) return false;
+          if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
+          return allowedSlugs.has(category.slug as (typeof CORE_DISCOVER_CATEGORY_SLUGS)[number]);
+        });
         const uniqueNeighborhoods = Array.from(
           new Set(
             listingRows
@@ -172,7 +183,7 @@ export function DiscoverContent() {
           )
         ).sort((a, b) => a.localeCompare(b));
 
-        setCategories((catRes.data ?? []) as Category[]);
+        setCategories(categoryRows);
         setListings(listingRows);
         setNeighborhoods(uniqueNeighborhoods);
 

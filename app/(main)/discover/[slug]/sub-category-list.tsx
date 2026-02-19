@@ -99,6 +99,14 @@ export function SubCategoryList({
   subCategories: SubCategory[];
   parentSlug: string;
 }) {
+  if (!subCategories.length) {
+    return (
+      <div className="rounded-xl border border-cream-200 bg-white px-4 py-5 text-body-sm text-muted-foreground">
+        Sub-categories are being updated. Please check back shortly.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {subCategories.map((sub) => {

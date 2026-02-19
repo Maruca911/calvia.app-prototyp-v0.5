@@ -9,7 +9,10 @@ import { FeatureCards } from './feature-cards';
 import { DealsOfTheDay } from './deals-of-the-day';
 import { EventsPreview } from './events-preview';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
+import {
+  CORE_DISCOVER_CATEGORY_SLUGS,
+  sortByCoreDiscoverOrder,
+} from '@/lib/discover-taxonomy';
 
 interface Category {
   id: string;
@@ -116,7 +119,7 @@ export function HomeContent() {
           postsRes.error ? `blog_posts: ${postsRes.error.message}` : null,
         ].filter((value): value is string => Boolean(value));
 
-        setCategories((catRes.data ?? []) as Category[]);
+        setCategories(sortByCoreDiscoverOrder((catRes.data ?? []) as Category[]));
         setEvents((eventsRes.data ?? []) as EventItem[]);
         setPosts((postsRes.data ?? []) as BlogPost[]);
 

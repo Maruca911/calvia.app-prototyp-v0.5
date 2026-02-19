@@ -36,6 +36,18 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'price-high', label: 'Price: High to Low' },
 ];
 
+function normalizeExternalUrl(url?: string | null) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
+function normalizeInstagramUrl(url?: string | null) {
+  if (!url) return '';
+  if (url.startsWith('@')) return `https://instagram.com/${url.slice(1)}`;
+  return normalizeExternalUrl(url);
+}
+
 function priceLevel(pr: string): number {
   if (!pr) return 0;
   return pr.replace(/[^€$]/g, '').length;
@@ -211,8 +223,9 @@ function ListingCard({
   isFavorited: boolean;
   onToggleFavorite: () => void;
 }) {
-  const instagram = listing.social_media?.instagram;
-  const hasWebsite = listing.website_url && listing.website_url.length > 0;
+  const instagram = normalizeInstagramUrl(listing.social_media?.instagram);
+  const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const hasWebsite = websiteUrl.length > 0;
   const imageUrl = listing.image_url || getListingImage(listing.id, parentSlug);
 
   return (
@@ -277,7 +290,7 @@ function ListingCard({
           )}
           {hasWebsite && (
             <Button asChild variant="outline" size="sm" className="border-ocean-200 text-ocean-500 hover:bg-ocean-50">
-              <a href={listing.website_url} target="_blank" rel="noopener noreferrer">
+              <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
                 <Globe size={14} className="mr-1.5" />
                 Website
               </a>

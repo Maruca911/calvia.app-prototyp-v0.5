@@ -55,6 +55,18 @@ interface RelatedListing {
   is_featured: boolean;
 }
 
+function normalizeExternalUrl(url?: string | null) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
+function normalizeInstagramUrl(url?: string | null) {
+  if (!url) return '';
+  if (url.startsWith('@')) return `https://instagram.com/${url.slice(1)}`;
+  return normalizeExternalUrl(url);
+}
+
 export function ListingDetail({
   listing,
   relatedListings,
@@ -119,8 +131,9 @@ export function ListingDetail({
     }
   };
 
-  const instagram = listing.social_media?.instagram;
-  const hasWebsite = listing.website_url && listing.website_url.length > 0;
+  const instagram = normalizeInstagramUrl(listing.social_media?.instagram);
+  const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const hasWebsite = websiteUrl.length > 0;
   const parentSlug = listing.categories.parent?.slug;
   const parentName = listing.categories.parent?.name;
   const backHref = parentSlug
@@ -246,7 +259,7 @@ export function ListingDetail({
                 variant="outline"
                 className="h-12 border-ocean-200 text-ocean-500 hover:bg-ocean-50"
               >
-                <a href={listing.website_url} target="_blank" rel="noopener noreferrer">
+                <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
                   <Globe size={18} className="mr-2" />
                   Website
                 </a>
