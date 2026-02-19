@@ -14,7 +14,10 @@ interface SearchListing {
   is_featured: boolean;
   description: string;
   tags: string[] | null;
-  categories: { name: string; slug: string; parent_id: string | null };
+  categories:
+    | { name: string; slug: string; parent_id: string | null }
+    | { name: string; slug: string; parent_id: string | null }[]
+    | null;
 }
 
 const SYNONYMS: Record<string, string[]> = {
@@ -57,7 +60,8 @@ function scoreResult(listing: SearchListing, terms: string[]): number {
   let score = 0;
   const name = listing.name.toLowerCase();
   const desc = (listing.description || '').toLowerCase();
-  const catName = listing.categories.name.toLowerCase();
+  const category = getListingCategory(listing.categories);
+  const catName = category?.name.toLowerCase() || '';
   const tags = (listing.tags || []).map(t => t.toLowerCase());
 
   for (const term of terms) {
@@ -76,6 +80,16 @@ function scoreResult(listing: SearchListing, terms: string[]): number {
 
   if (listing.is_featured) score += 2;
   return score;
+}
+
+function getListingCategory(
+  category:
+    | { name: string; slug: string; parent_id: string | null }
+    | { name: string; slug: string; parent_id: string | null }[]
+    | null
+) {
+  if (!category) return null;
+  return Array.isArray(category) ? category[0] ?? null : category;
 }
 
 function highlightMatch(text: string, query: string) {
@@ -122,7 +136,7 @@ export function GlobalSearch() {
       const allowedParentIds = new Set((catRes.data ?? []).map((category) => category.id));
       const allowedSlugs = new Set<string>(CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]);
       const filteredListings = ((listRes.data ?? []) as SearchListing[]).filter((listing) => {
-        const category = listing.categories;
+        const category = getListingCategory(listing.categories);
         if (!category) return false;
         if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
         return allowedSlugs.has(category.slug);
@@ -292,7 +306,8 @@ export function GlobalSearch() {
               </div>
               <div className="space-y-2">
                 {results.map((listing, i) => {
-                  const CatIcon = getCategoryIcon(listing.categories.name);
+                  const category = getListingCategory(listing.categories);
+                  const CatIcon = getCategoryIcon(category?.name ?? '');
                   return (
                     <Link
                       key={listing.id}
@@ -318,7 +333,7 @@ export function GlobalSearch() {
                         </p>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                           <span className="text-[13px] font-medium text-ocean-500 bg-ocean-50 px-2 py-0.5 rounded-full">
-                            {listing.categories.name}
+                            {category?.name ?? 'Category'}
                           </span>
                           {listing.neighborhood && (
                             <span className="text-[13px] text-muted-foreground flex items-center gap-1">

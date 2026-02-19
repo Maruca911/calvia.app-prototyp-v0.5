@@ -38,7 +38,11 @@ interface Listing {
     name: string;
     slug: string;
     parent_id: string | null;
-  };
+  } | {
+    name: string;
+    slug: string;
+    parent_id: string | null;
+  }[] | null;
 }
 
 const SEARCH_SYNONYMS: Record<string, string[]> = {
@@ -100,7 +104,8 @@ function scoreResult(listing: Listing, terms: string[]): number {
   let score = 0;
   const name = listing.name.toLowerCase();
   const desc = (listing.description || '').toLowerCase();
-  const catName = listing.categories.name.toLowerCase();
+  const category = getListingCategory(listing.categories);
+  const catName = category?.name.toLowerCase() || '';
   const tags = (listing.tags || []).map(t => t.toLowerCase());
   const neighborhood = (listing.neighborhood || '').toLowerCase();
 
@@ -123,6 +128,16 @@ function scoreResult(listing: Listing, terms: string[]): number {
   if (listing.is_featured) score += 2;
 
   return score;
+}
+
+function getListingCategory(
+  category:
+    | { name: string; slug: string; parent_id: string | null }
+    | { name: string; slug: string; parent_id: string | null }[]
+    | null
+) {
+  if (!category) return null;
+  return Array.isArray(category) ? category[0] ?? null : category;
 }
 
 export function DiscoverContent() {
@@ -170,7 +185,7 @@ export function DiscoverContent() {
         const allowedParentIds = new Set(categoryRows.map((category) => category.id));
         const allowedSlugs = new Set<string>(CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]);
         const listingRows = ((listRes.data ?? []) as Listing[]).filter((listing) => {
-          const category = listing.categories;
+          const category = getListingCategory(listing.categories);
           if (!category) return false;
           if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
           return allowedSlugs.has(category.slug);
@@ -389,7 +404,7 @@ function SearchResultCard({ listing }: { listing: Listing }) {
           </div>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className="text-[13px] font-medium text-sage-600 bg-sage-50 px-2 py-0.5 rounded-full">
-              {listing.categories.name}
+              {getListingCategory(listing.categories)?.name ?? 'Category'}
             </span>
             {listing.neighborhood && (
               <span className="text-[13px] text-muted-foreground flex items-center gap-1">
