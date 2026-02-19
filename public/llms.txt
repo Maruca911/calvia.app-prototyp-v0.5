@@ -1,0 +1,16 @@
+# Calvia.app
+
+> Calvia.app is the modern yellow pages for Mallorca's southwest. It helps residents and visitors discover trusted local businesses, offers, and events.
+
+## Core Pages
+- [Home](https://calvia.app/home)
+- [Discover](https://calvia.app/discover)
+- [Deals](https://calvia.app/deals)
+- [Events](https://calvia.app/events)
+- [Concierge](https://calvia.app/concierge)
+- [Profile](https://calvia.app/profile)
+
+## Crawl Files
+- [Sitemap](https://calvia.app/sitemap.xml)
+- [Robots](https://calvia.app/robots.txt)
+- [LLM](https://calvia.app/llm.txt)

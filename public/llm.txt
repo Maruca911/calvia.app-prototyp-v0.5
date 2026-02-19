@@ -1,0 +1,15 @@
+Calvia.app
+The modern yellow pages for Mallorca's southwest.
+
+Primary URLs
+- https://calvia.app/home
+- https://calvia.app/discover
+- https://calvia.app/deals
+- https://calvia.app/events
+- https://calvia.app/concierge
+- https://calvia.app/profile
+
+Machine-readable resources
+- https://calvia.app/sitemap.xml
+- https://calvia.app/robots.txt
+- https://calvia.app/llms.txt

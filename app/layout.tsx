@@ -16,9 +16,6 @@ export const metadata: Metadata = {
     "Find trusted local businesses across Calvia. The modern yellow pages for residents, second-home owners, and visitors in Mallorca's southwest.",
   manifest: '/manifest.json',
   metadataBase: new URL('https://calvia.app'),
-  alternates: {
-    canonical: '/',
-  },
   robots: {
     index: true,
     follow: true,
