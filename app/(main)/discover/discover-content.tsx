@@ -168,12 +168,12 @@ export function DiscoverContent() {
 
         const categoryRows = sortByCoreDiscoverOrder((catRes.data ?? []) as Category[]);
         const allowedParentIds = new Set(categoryRows.map((category) => category.id));
-        const allowedSlugs = new Set(CORE_DISCOVER_CATEGORY_SLUGS);
+        const allowedSlugs = new Set<string>(CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]);
         const listingRows = ((listRes.data ?? []) as Listing[]).filter((listing) => {
           const category = listing.categories;
           if (!category) return false;
           if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
-          return allowedSlugs.has(category.slug as (typeof CORE_DISCOVER_CATEGORY_SLUGS)[number]);
+          return allowedSlugs.has(category.slug);
         });
         const uniqueNeighborhoods = Array.from(
           new Set(

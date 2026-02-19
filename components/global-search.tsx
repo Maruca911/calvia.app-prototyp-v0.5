@@ -120,12 +120,12 @@ export function GlobalSearch() {
       ]);
 
       const allowedParentIds = new Set((catRes.data ?? []).map((category) => category.id));
-      const allowedSlugs = new Set(CORE_DISCOVER_CATEGORY_SLUGS);
+      const allowedSlugs = new Set<string>(CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]);
       const filteredListings = ((listRes.data ?? []) as SearchListing[]).filter((listing) => {
         const category = listing.categories;
         if (!category) return false;
         if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
-        return allowedSlugs.has(category.slug as (typeof CORE_DISCOVER_CATEGORY_SLUGS)[number]);
+        return allowedSlugs.has(category.slug);
       });
 
       setListings(filteredListings);

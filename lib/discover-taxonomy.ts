@@ -11,20 +11,22 @@ export const CORE_DISCOVER_CATEGORY_SLUGS = [
   'emergency-services',
 ] as const;
 
-const coreOrderMap = new Map(
-  CORE_DISCOVER_CATEGORY_SLUGS.map((slug, index) => [slug, index] as const)
+const coreOrderMap = (CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]).reduce(
+  (acc, slug, index) => {
+    acc[slug] = index;
+    return acc;
+  },
+  {} as Record<string, number>
 );
 
-export type CoreDiscoverCategorySlug = (typeof CORE_DISCOVER_CATEGORY_SLUGS)[number];
-
-export function isCoreDiscoverCategorySlug(slug: string): slug is CoreDiscoverCategorySlug {
-  return coreOrderMap.has(slug as CoreDiscoverCategorySlug);
+export function isCoreDiscoverCategorySlug(slug: string): boolean {
+  return Object.prototype.hasOwnProperty.call(coreOrderMap, slug);
 }
 
 export function sortByCoreDiscoverOrder<T extends { slug: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
-    const aOrder = coreOrderMap.get(a.slug as CoreDiscoverCategorySlug);
-    const bOrder = coreOrderMap.get(b.slug as CoreDiscoverCategorySlug);
+    const aOrder = coreOrderMap[a.slug];
+    const bOrder = coreOrderMap[b.slug];
     return (aOrder ?? Number.MAX_SAFE_INTEGER) - (bOrder ?? Number.MAX_SAFE_INTEGER);
   });
 }
