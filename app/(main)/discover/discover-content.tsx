@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSupabase, getSupabaseConfigError } from '@/lib/supabase';
+import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
 import { DiscoverCategories } from './discover-categories';
 
 interface Category {
@@ -144,7 +145,12 @@ export function DiscoverContent() {
     async function fetchAll() {
       try {
         const [catRes, listRes] = await Promise.all([
-          supabase.from('categories').select('*').is('parent_id', null).order('sort_order'),
+          supabase
+            .from('categories')
+            .select('id, name, slug, description, icon_name')
+            .is('parent_id', null)
+            .in('slug', [...CORE_DISCOVER_CATEGORY_SLUGS])
+            .order('sort_order'),
           supabase.from('listings').select('*, categories!inner(name, slug, parent_id)').order('is_featured', { ascending: false }).order('name'),
         ]);
 

@@ -9,6 +9,7 @@ import { FeatureCards } from './feature-cards';
 import { DealsOfTheDay } from './deals-of-the-day';
 import { EventsPreview } from './events-preview';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
 
 interface Category {
   id: string;
@@ -80,8 +81,9 @@ export function HomeContent() {
         const [catRes, dealsRes, eventsRes, postsRes] = await Promise.all([
           supabase
             .from('categories')
-            .select('*')
+            .select('id, name, slug, icon_name, description')
             .is('parent_id', null)
+            .in('slug', [...CORE_DISCOVER_CATEGORY_SLUGS])
             .order('sort_order'),
           supabase
             .from('deals')
