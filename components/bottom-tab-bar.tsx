@@ -2,12 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, MessageCircle, User } from 'lucide-react';
+import { Home, Compass, CalendarDays, MessageCircle, User } from 'lucide-react';
+import { isBookingsEnabled, isConciergeEnabled } from '@/lib/features';
 
 const tabs = [
   { href: '/home', label: 'Home', icon: Home },
   { href: '/discover', label: 'Discover', icon: Compass },
-  { href: '/concierge', label: 'Concierge', icon: MessageCircle },
+  ...(isBookingsEnabled
+    ? [{ href: '/bookings', label: 'Bookings', icon: CalendarDays }]
+    : []),
+  ...(isConciergeEnabled
+    ? [{ href: '/concierge', label: 'Concierge', icon: MessageCircle }]
+    : []),
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

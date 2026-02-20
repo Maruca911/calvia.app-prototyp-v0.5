@@ -108,7 +108,7 @@ export function ProfileView({ user }: { user: User }) {
       try {
         await navigator.share({
           title: 'Join Calvia',
-          text: `Use my referral code ${profile.referral_code} to join Calvia, the premium concierge app for Mallorca.`,
+          text: `Use my referral code ${profile.referral_code} to join Calvia, the modern local app for southwest Mallorca.`,
           url: 'https://calvia.app',
         });
       } catch {

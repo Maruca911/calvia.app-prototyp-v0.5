@@ -20,6 +20,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER confirm_email_on_signup
+DROP TRIGGER IF EXISTS confirm_email_on_signup ON auth.users;
+
+CREATE TRIGGER confirm_email_on_signup
   BEFORE INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION auto_confirm_email();
+  FOR EACH ROW
+  EXECUTE FUNCTION auto_confirm_email();

@@ -64,7 +64,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER set_concierge_reference
+DROP TRIGGER IF EXISTS set_concierge_reference ON concierge_requests;
+
+CREATE TRIGGER set_concierge_reference
   BEFORE INSERT ON concierge_requests
   FOR EACH ROW
   EXECUTE FUNCTION generate_concierge_reference();
@@ -77,7 +79,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER set_concierge_updated_at
+DROP TRIGGER IF EXISTS set_concierge_updated_at ON concierge_requests;
+
+CREATE TRIGGER set_concierge_updated_at
   BEFORE UPDATE ON concierge_requests
   FOR EACH ROW
   EXECUTE FUNCTION update_concierge_updated_at();

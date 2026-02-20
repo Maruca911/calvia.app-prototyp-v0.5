@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { isBookingsEnabled, isConciergeEnabled } from '@/lib/features';
 import { ConciergeContent } from './concierge-content';
 
 export const metadata: Metadata = {
@@ -11,5 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default function ConciergePage() {
+  if (!isConciergeEnabled) {
+    redirect(isBookingsEnabled ? '/bookings' : '/home');
+  }
+
   return <ConciergeContent />;
 }

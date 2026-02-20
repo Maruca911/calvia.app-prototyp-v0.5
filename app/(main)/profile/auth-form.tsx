@@ -74,7 +74,7 @@ export function AuthForm() {
         </h1>
         <p className="text-body text-muted-foreground">
           {mode === 'signin'
-            ? 'Sign in to access your concierge profile'
+            ? 'Sign in to access your member profile'
             : 'Your premium guide to life in southwest Mallorca'}
         </p>
       </div>
