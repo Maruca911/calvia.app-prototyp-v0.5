@@ -153,7 +153,8 @@ def main() -> int:
     if not args.db_url:
         raise SystemExit("Missing --db-url (or CALVIA_DB_URL).")
 
-    with psycopg.connect(args.db_url, row_factory=dict_row) as conn:
+    # Supabase pooler (PgBouncer transaction mode) can reject prepared statements.
+    with psycopg.connect(args.db_url, row_factory=dict_row, prepare_threshold=None) as conn:
         categories_by_slug = load_categories(conn)
 
         businesses = conn.execute(
