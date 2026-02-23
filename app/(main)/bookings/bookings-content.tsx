@@ -78,6 +78,7 @@ export function BookingsContent() {
   }, [form.businessName]);
 
   const quickCallPhone = lastSubmittedPhone || listingPhone;
+  const showInstantConfirmation = Boolean(lastSubmittedPhone) || bookings.some((booking) => booking.status === 'requested');
   const supportWhatsAppUrl = useMemo(() => {
     return buildSupportWhatsAppUrl(
       buildBookingSupportMessage({
@@ -512,36 +513,38 @@ export function BookingsContent() {
         </section>
       )}
 
-      <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-3">
-        <h2 className="text-body font-semibold text-foreground">Need instant confirmation?</h2>
-        <p className="text-body-sm text-muted-foreground">
-          For urgent reservations, call the business directly or message Calvia WhatsApp support while your request is processing.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {quickCallPhone ? (
-            <Button asChild variant="outline" className="border-ocean-200 text-ocean-600 hover:bg-ocean-50">
-              <a href={`tel:${quickCallPhone}`}>
+      {showInstantConfirmation && (
+        <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-3">
+          <h2 className="text-body font-semibold text-foreground">Need instant confirmation?</h2>
+          <p className="text-body-sm text-muted-foreground">
+            For urgent reservations, call the business directly or message Calvia WhatsApp support while your request is processing.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {quickCallPhone ? (
+              <Button asChild variant="outline" className="border-ocean-200 text-ocean-600 hover:bg-ocean-50">
+                <a href={`tel:${quickCallPhone}`}>
+                  <Phone size={16} className="mr-2" />
+                  Call business
+                </a>
+              </Button>
+            ) : (
+              <Button variant="outline" disabled className="border-cream-300">
                 <Phone size={16} className="mr-2" />
                 Call business
+              </Button>
+            )}
+            <Button asChild variant="outline" className="border-sage-200 text-sage-700 hover:bg-sage-50">
+              <a href={supportWhatsAppUrl} target="_blank" rel="noopener noreferrer">
+                <MessageCircle size={16} className="mr-2" />
+                WhatsApp support
               </a>
             </Button>
-          ) : (
-            <Button variant="outline" disabled className="border-cream-300">
-              <Phone size={16} className="mr-2" />
-              Call business
-            </Button>
-          )}
-          <Button asChild variant="outline" className="border-sage-200 text-sage-700 hover:bg-sage-50">
-            <a href={supportWhatsAppUrl} target="_blank" rel="noopener noreferrer">
-              <MessageCircle size={16} className="mr-2" />
-              WhatsApp support
-            </a>
-          </Button>
-        </div>
-        <p className="text-[12px] text-muted-foreground">
-          Target response SLA: within 15 minutes during partner business hours.
-        </p>
-      </section>
+          </div>
+          <p className="text-[12px] text-muted-foreground">
+            Target response SLA: within 15 minutes during partner business hours.
+          </p>
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-body font-semibold text-foreground">My bookings</h2>

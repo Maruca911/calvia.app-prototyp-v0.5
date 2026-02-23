@@ -22,6 +22,16 @@ interface Review {
   profiles: { full_name: string } | null;
 }
 
+interface ReviewRow {
+  id: string;
+  rating: number;
+  comment: string;
+  content?: string;
+  created_at: string;
+  updated_at?: string;
+  user_id: string;
+}
+
 function normalizeReview(review: Review): Review {
   return {
     ...review,
@@ -31,6 +41,31 @@ function normalizeReview(review: Review): Review {
 
 function byNewest(a: Review, b: Review): number {
   return new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime();
+}
+
+async function loadProfileNameMap(userIds: string[]): Promise<Record<string, string>> {
+  if (!userIds.length) {
+    return {};
+  }
+
+  const { data: profileRows, error: profileError } = await getSupabase()
+    .from('profiles')
+    .select('id, full_name')
+    .in('id', userIds);
+
+  if (profileError) {
+    console.warn('[Reviews] Failed to load profile names', profileError);
+    return {};
+  }
+
+  const profileNameMap: Record<string, string> = {};
+  for (const row of (profileRows || []) as Array<{ id: string; full_name?: string | null }>) {
+    if (row.id) {
+      profileNameMap[row.id] = row.full_name || '';
+    }
+  }
+
+  return profileNameMap;
 }
 
 interface ReviewSectionProps {
@@ -52,7 +87,7 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
   const loadReviews = useCallback(async () => {
     const { data, error } = await getSupabase()
       .from('reviews')
-      .select('id, rating, comment, content, created_at, updated_at, user_id, profiles:user_id(full_name)')
+      .select('id, rating, comment, content, created_at, updated_at, user_id')
       .eq('listing_id', listingId)
       .order('updated_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
@@ -64,7 +99,21 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
     }
 
     if (data) {
-      const normalized = (data as unknown as Review[]).map(normalizeReview).sort(byNewest);
+      const rows = (data || []) as ReviewRow[];
+      const profileNameMap = await loadProfileNameMap(
+        Array.from(new Set(rows.map((row) => row.user_id).filter(Boolean)))
+      );
+
+      const normalized = rows
+        .map((row) =>
+          normalizeReview({
+            ...row,
+            profiles: profileNameMap[row.user_id]
+              ? { full_name: profileNameMap[row.user_id] }
+              : null,
+          })
+        )
+        .sort(byNewest);
       setReviews(normalized);
       if (user) {
         const mine = normalized.find((r) => r.user_id === user.id);
@@ -182,14 +231,17 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
           },
           { onConflict: 'user_id,listing_id' }
         )
-        .select('id, rating, comment, content, created_at, updated_at, user_id, profiles:user_id(full_name)')
+        .select('id, rating, comment, content, created_at, updated_at, user_id')
         .single();
 
       if (error || !data) {
         throw error || new Error('Unknown review write error');
       }
 
-      const savedReview = normalizeReview(data as unknown as Review);
+      const savedReview = normalizeReview({
+        ...(data as ReviewRow),
+        profiles: previousUserReview?.profiles || { full_name: user.email || 'Calvia Member' },
+      });
       setReviews((prev) => {
         const withoutMine = prev.filter((item) => item.user_id !== user.id);
         return [savedReview, ...withoutMine].sort(byNewest);
