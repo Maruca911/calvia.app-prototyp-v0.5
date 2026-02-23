@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { startAuthentication } from '@simplewebauthn/browser';
+import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -22,8 +24,58 @@ export function AuthForm() {
   const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [oauthEnabled, setOauthEnabled] = useState({ google: true, apple: true });
+
+  const passkeySupported =
+    typeof window !== 'undefined' && typeof window.PublicKeyCredential !== 'undefined';
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProviderSettings() {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (!supabaseUrl || !anonKey) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${supabaseUrl}/auth/v1/settings`, {
+          headers: { apikey: anonKey },
+        });
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          external?: { google?: boolean; apple?: boolean };
+        };
+        setOauthEnabled({
+          google: Boolean(payload.external?.google),
+          apple: Boolean(payload.external?.apple),
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.warn('[Auth] Could not load OAuth provider settings', error);
+        }
+      }
+    }
+
+    void loadProviderSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleOAuth = async (provider: 'google' | 'apple') => {
+    if (!oauthEnabled[provider]) {
+      toast.error(
+        `${provider === 'google' ? 'Google' : 'Apple'} login is not enabled in Supabase yet.`
+      );
+      return;
+    }
+
     setOauthLoading(provider);
     try {
       const redirectTo =
@@ -48,10 +100,85 @@ export function AuthForm() {
     }
   };
 
-  const handlePasskey = () => {
-    toast.message(
-      'Passkey login will be enabled once Supabase Passkeys is configured in Auth settings for this project.'
-    );
+  const handlePasskey = async () => {
+    if (!passkeySupported) {
+      toast.error('This browser does not support passkeys.');
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      toast.error('Enter your email address first to continue with passkey login.');
+      return;
+    }
+
+    setPasskeyLoading(true);
+    try {
+      const optionsResponse = await fetch('/api/auth/passkeys/login-options', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+      const optionsPayload = (await optionsResponse.json()) as {
+        challengeId?: string;
+        options?: PublicKeyCredentialRequestOptionsJSON;
+        error?: string;
+      };
+
+      if (!optionsResponse.ok || !optionsPayload.options || !optionsPayload.challengeId) {
+        throw new Error(optionsPayload.error || 'No passkey found for this account yet.');
+      }
+
+      const assertionResponse = await startAuthentication({
+        optionsJSON: optionsPayload.options,
+      });
+
+      const verifyResponse = await fetch('/api/auth/passkeys/login-verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          challengeId: optionsPayload.challengeId,
+          response: assertionResponse,
+        }),
+      });
+
+      const verifyPayload = (await verifyResponse.json()) as {
+        success?: boolean;
+        accessToken?: string;
+        refreshToken?: string;
+        error?: string;
+      };
+
+      if (
+        !verifyResponse.ok ||
+        !verifyPayload.success ||
+        !verifyPayload.accessToken ||
+        !verifyPayload.refreshToken
+      ) {
+        throw new Error(verifyPayload.error || 'Passkey verification failed.');
+      }
+
+      const { error: sessionError } = await getSupabase().auth.setSession({
+        access_token: verifyPayload.accessToken,
+        refresh_token: verifyPayload.refreshToken,
+      });
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      toast.success('Signed in with passkey.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not complete passkey login.';
+      toast.error(message);
+    } finally {
+      setPasskeyLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -264,7 +391,7 @@ export function AuthForm() {
       <div className="space-y-3">
         <Button
           onClick={() => handleOAuth('google')}
-          disabled={oauthLoading !== null || loading}
+          disabled={oauthLoading !== null || loading || !oauthEnabled.google}
           variant="outline"
           className="w-full min-h-[56px] border-cream-300 text-body"
         >
@@ -275,10 +402,15 @@ export function AuthForm() {
               Redirecting...
             </span>
           )}
+          {!oauthEnabled.google && (
+            <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
+              Setup required
+            </span>
+          )}
         </Button>
         <Button
           onClick={() => handleOAuth('apple')}
-          disabled={oauthLoading !== null || loading}
+          disabled={oauthLoading !== null || loading || !oauthEnabled.apple}
           variant="outline"
           className="w-full min-h-[56px] border-cream-300 text-body"
         >
@@ -289,19 +421,35 @@ export function AuthForm() {
               Redirecting...
             </span>
           )}
+          {!oauthEnabled.apple && (
+            <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
+              Setup required
+            </span>
+          )}
         </Button>
         <Button
           onClick={handlePasskey}
+          disabled={passkeyLoading || loading || oauthLoading !== null}
           variant="outline"
           className="w-full min-h-[56px] border-cream-300 text-body"
         >
           <KeyRound size={20} className="mr-2" />
           Passkey
-          <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
-            Setup required
-          </span>
+          {passkeyLoading ? (
+            <span className="ml-auto text-[13px] font-medium text-ocean-500">
+              Verifying...
+            </span>
+          ) : (
+            <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
+              Secure login
+            </span>
+          )}
         </Button>
       </div>
+
+      <p className="text-center text-[12px] text-muted-foreground">
+        To use passkey sign-in, enter the email linked to your registered passkey.
+      </p>
 
       <p className="text-center text-body text-muted-foreground">
         {mode === 'signup' ? (

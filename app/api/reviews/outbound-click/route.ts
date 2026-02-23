@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
-
-type ReviewProvider = 'google' | 'tripadvisor';
+import { isAllowedExternalReviewUrl, type ReviewProvider } from '@/lib/external-reviews';
 
 interface OutboundClickPayload {
   listingId?: string;
@@ -59,11 +58,6 @@ function asProvider(value: string | undefined): ReviewProvider | null {
   return null;
 }
 
-function isSafeUrl(value: string | undefined): boolean {
-  if (!value) return false;
-  return /^https?:\/\//i.test(value);
-}
-
 export async function POST(request: NextRequest) {
   try {
     const { user, supabase } = await getOptionalUserFromRequest(request);
@@ -74,15 +68,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid provider' }, { status: 400 });
     }
 
-    if (!isSafeUrl(body.destinationUrl)) {
-      return NextResponse.json({ error: 'Invalid destination url' }, { status: 400 });
+    const destinationUrl = body.destinationUrl;
+    if (!destinationUrl || !isAllowedExternalReviewUrl(provider, destinationUrl)) {
+      return NextResponse.json({ error: 'Invalid review destination url' }, { status: 400 });
     }
 
     const payload = {
       listing_id: body.listingId || null,
       user_id: user?.id || null,
       provider,
-      destination_url: body.destinationUrl,
+      destination_url: destinationUrl,
     };
 
     const { error } = await supabase.from('review_outbound_events').insert(payload);

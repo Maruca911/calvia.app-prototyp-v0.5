@@ -5,6 +5,10 @@ import { ExternalLink, Send, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
+import {
+  buildGoogleReviewUrl,
+  buildTripAdvisorReviewUrl,
+} from '@/lib/external-reviews';
 import { toast } from 'sonner';
 
 interface Review {
@@ -216,9 +220,8 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  const externalQuery = [listingName, listingAddress, 'Mallorca'].filter(Boolean).join(' ');
-  const googleReviewUrl = `https://www.google.com/search?q=${encodeURIComponent(`${externalQuery} reviews`)}`;
-  const tripAdvisorReviewUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(externalQuery)}`;
+  const googleReviewUrl = buildGoogleReviewUrl(listingName, listingAddress);
+  const tripAdvisorReviewUrl = buildTripAdvisorReviewUrl(listingName, listingAddress);
 
   return (
     <section className="space-y-4">
@@ -283,7 +286,11 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
             Help this business grow visibility
           </p>
           <p className="text-[13px] text-muted-foreground">
-            You can also leave a review on Google or Tripadvisor. External platforms have their own moderation and policy rules.
+            You can also leave a review on Google or Tripadvisor. External platforms have their
+            own moderation and policy rules.
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            Calvia does not reward, pay, or incentivize external reviews.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Button

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EditProfileDrawer } from './edit-profile-drawer';
+import { PasskeySecurityCard } from './passkey-security-card';
 
 interface Profile {
   full_name: string;
@@ -258,6 +259,8 @@ export function ProfileView({ user }: { user: User }) {
       </section>
 
       <NotificationsSection profile={profile} userId={user.id} onUpdate={loadProfile} />
+
+      {user.email && <PasskeySecurityCard userEmail={user.email} />}
 
       <Button
         onClick={signOut}
