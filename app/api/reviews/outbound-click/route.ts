@@ -87,12 +87,9 @@ export async function POST(request: NextRequest) {
 
     const { error } = await supabase.from('review_outbound_events').insert(payload);
     if (error) {
-      if (error.code === '42P01') {
-        // Migration has not been applied yet. Avoid blocking outbound links.
-        return NextResponse.json({ success: true, tracked: false });
-      }
-      console.error('[Reviews] Failed to track outbound click', error);
-      return NextResponse.json({ error: 'Failed to track outbound click' }, { status: 500 });
+      // This endpoint is analytics-only. If migration/env is not ready, do not block user flow.
+      console.warn('[Reviews] Outbound click not tracked', error);
+      return NextResponse.json({ success: true, tracked: false });
     }
 
     return NextResponse.json({ success: true, tracked: true });
