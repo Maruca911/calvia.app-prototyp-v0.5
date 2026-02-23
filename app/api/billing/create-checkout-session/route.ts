@@ -1,8 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 type BillingPlan = 'monthly' | 'annual';
+
+function getSupabaseUserClient(accessToken: string): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error(
+      'Missing server Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required.'
+    );
+  }
+
+  return createClient(url, anonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+}
 
 function resolveOrigin(request: NextRequest): string {
   const explicitOrigin = request.headers.get('origin');
@@ -19,28 +41,31 @@ function resolveOrigin(request: NextRequest): string {
   return process.env.URL || 'https://calvia.app';
 }
 
-async function getUserFromRequest(request: NextRequest) {
+async function getUserFromRequest(
+  request: NextRequest
+): Promise<{ user: User; supabase: SupabaseClient } | null> {
   const authHeader = request.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
   if (!token) {
     return null;
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  const supabase = getSupabaseUserClient(token);
+  const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
     return null;
   }
 
-  return data.user;
+  return { user: data.user, supabase };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUserFromRequest(request);
-    if (!user) {
+    const context = await getUserFromRequest(request);
+    if (!context) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { user, supabase } = context;
 
     const body = (await request.json()) as { plan?: BillingPlan };
     const plan = body.plan;
@@ -57,16 +82,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing Stripe price configuration' }, { status: 500 });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
     const stripe = getStripe();
 
-    const { data: existingMembership } = await supabaseAdmin
+    const { data: existingMembership, error: membershipError } = await supabase
       .from('premium_memberships')
       .select('stripe_customer_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    if (membershipError) {
+      console.warn('[Stripe] Unable to read existing membership in checkout route', membershipError.message);
+    }
 
     let customerId = existingMembership?.stripe_customer_id || null;
     if (!customerId) {
@@ -106,7 +134,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error('[Stripe] create-checkout-session failed', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-
