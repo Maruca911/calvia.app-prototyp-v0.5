@@ -60,6 +60,7 @@ export function BookingsContent() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [prefillApplied, setPrefillApplied] = useState(false);
   const [checkoutStateHandled, setCheckoutStateHandled] = useState(false);
+  const [checkoutActivationInFlight, setCheckoutActivationInFlight] = useState(false);
 
   const isFormValid = useMemo(() => {
     return form.businessName.trim().length > 1;
@@ -102,6 +103,54 @@ export function BookingsContent() {
 
     setLoading(false);
   }, [user]);
+
+  const confirmCheckoutSession = useCallback(
+    async (sessionId: string) => {
+      if (!user) {
+        return;
+      }
+
+      setCheckoutActivationInFlight(true);
+      try {
+        const {
+          data: { session },
+        } = await getSupabase().auth.getSession();
+
+        const response = await fetch('/api/billing/confirm-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        const payload = (await response.json()) as {
+          success?: boolean;
+          isPremium?: boolean;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error || 'Membership activation failed');
+        }
+
+        if (payload.isPremium) {
+          toast.success('Premium membership activated.');
+        } else {
+          toast.message('Checkout processed. Membership status will update shortly.');
+        }
+      } catch (error) {
+        console.error('[Bookings] Checkout confirmation error', error);
+        const message =
+          error instanceof Error ? error.message : 'Membership activation failed. Please contact support.';
+        toast.error(message);
+      } finally {
+        setCheckoutActivationInFlight(false);
+      }
+    },
+    [user]
+  );
 
   useEffect(() => {
     loadData();
@@ -147,15 +196,25 @@ export function BookingsContent() {
       return;
     }
 
-    if (checkoutState === 'success') {
-      toast.success('Checkout completed. Your membership is being activated.');
-      loadData();
-    } else if (checkoutState === 'cancelled') {
-      toast.message('Checkout was cancelled.');
-    }
+    const handleCheckoutState = async () => {
+      if (checkoutState === 'success') {
+        const sessionId = searchParams.get('session_id');
+        if (sessionId) {
+          toast.success('Checkout completed. Activating membership...');
+          await confirmCheckoutSession(sessionId);
+        } else {
+          toast.success('Checkout completed. Your membership is being activated.');
+        }
+        await loadData();
+      } else if (checkoutState === 'cancelled') {
+        toast.message('Checkout was cancelled.');
+      }
 
-    setCheckoutStateHandled(true);
-  }, [checkoutStateHandled, loadData, searchParams]);
+      setCheckoutStateHandled(true);
+    };
+
+    void handleCheckoutState();
+  }, [checkoutStateHandled, confirmCheckoutSession, loadData, searchParams]);
 
   const startCheckout = async (plan: 'monthly' | 'annual') => {
     if (!user) {
@@ -387,6 +446,12 @@ export function BookingsContent() {
 
       <section className="space-y-3">
         <h2 className="text-body font-semibold text-foreground">My bookings</h2>
+        {checkoutActivationInFlight && (
+          <div className="p-3 bg-ocean-50 border border-ocean-100 rounded-lg text-[13px] text-ocean-700 flex items-center gap-2">
+            <Loader2 size={14} className="animate-spin" />
+            Finalizing your premium access...
+          </div>
+        )}
         {loading ? (
           <div className="p-5 bg-white rounded-xl border border-cream-200 text-muted-foreground flex items-center gap-2">
             <Loader2 size={16} className="animate-spin" />

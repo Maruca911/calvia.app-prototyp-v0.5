@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   BadgeEuro,
   CalendarClock,
-  CalendarRange,
   Clock3,
   CreditCard,
   Database,
@@ -21,6 +20,7 @@ import {
 } from 'lucide-react';
 import { CalviaLogo, CalviaWordmark } from '@/components/calvia-logo';
 import { Button } from '@/components/ui/button';
+import { AvailabilitySettingsPanel } from './availability-settings-panel';
 
 export const metadata: Metadata = {
   title: 'Partner Dashboard Preview | Calvia.app',
@@ -256,22 +256,7 @@ export default function PartnerDashboardPreviewPage() {
         </section>
 
         <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          <article className="rounded-xl border border-cream-200 bg-white p-4 sm:p-5">
-            <h2 className="text-body font-semibold text-foreground flex items-center gap-2 mb-3">
-              <CalendarRange size={16} className="text-ocean-500" />
-              Calendar & Availability
-            </h2>
-            <div className="space-y-2">
-              <div className="rounded-lg border border-cream-200 p-3">
-                <p className="text-[13px] font-medium text-foreground">Google / Outlook / Apple sync</p>
-                <p className="text-[12px] text-muted-foreground mt-1">Two-way busy-slot sync and staff rota mapping.</p>
-              </div>
-              <div className="rounded-lg border border-cream-200 p-3">
-                <p className="text-[13px] font-medium text-foreground">Availability rules</p>
-                <p className="text-[12px] text-muted-foreground mt-1">Min lead time, slot caps, blackout dates, walk-in buffers.</p>
-              </div>
-            </div>
-          </article>
+          <AvailabilitySettingsPanel />
 
           <article className="rounded-xl border border-cream-200 bg-white p-4 sm:p-5">
             <h2 className="text-body font-semibold text-foreground flex items-center gap-2 mb-3">

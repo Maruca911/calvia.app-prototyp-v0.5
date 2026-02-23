@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: `${origin}/bookings?checkout=success`,
+      success_url: `${origin}/bookings?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/bookings?checkout=cancelled`,
       metadata: {
         supabase_user_id: user.id,
