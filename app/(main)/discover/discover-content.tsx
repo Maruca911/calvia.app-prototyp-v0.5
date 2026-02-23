@@ -140,6 +140,18 @@ function getListingCategory(
   return Array.isArray(category) ? category[0] ?? null : category;
 }
 
+function normalizeExternalUrl(url?: string | null) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
+function normalizeInstagramUrl(url?: string | null) {
+  if (!url) return '';
+  if (url.startsWith('@')) return `https://instagram.com/${url.slice(1)}`;
+  return normalizeExternalUrl(url);
+}
+
 export function DiscoverContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
@@ -148,6 +160,9 @@ export function DiscoverContent() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string | null>(null);
+  const trimmedQuery = query.trim();
+  const hasQuery = trimmedQuery.length > 0;
+  const hasSearchTerms = trimmedQuery.length >= 2;
 
   useEffect(() => {
     const configError = getSupabaseConfigError();
@@ -225,12 +240,12 @@ export function DiscoverContent() {
     };
   }, []);
 
-  const isSearching = query.length >= 2 || selectedNeighborhood !== null;
+  const isSearching = hasSearchTerms || selectedNeighborhood !== null;
 
   const filteredListings = useMemo(() => {
     if (!isSearching) return [];
 
-    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+    const terms = trimmedQuery.toLowerCase().split(/\s+/).filter((t) => t.length >= 2);
 
     const scored = listings
       .map((listing) => {
@@ -249,7 +264,33 @@ export function DiscoverContent() {
     scored.sort((a, b) => b.score - a.score);
 
     return scored.map(s => s.listing);
-  }, [query, selectedNeighborhood, listings, isSearching]);
+  }, [trimmedQuery, selectedNeighborhood, listings, isSearching]);
+
+  const quickSuggestions = useMemo(() => {
+    if (!hasSearchTerms) {
+      return [];
+    }
+
+    const terms = trimmedQuery.toLowerCase().split(/\s+/).filter((t) => t.length >= 2);
+    if (!terms.length) {
+      return [];
+    }
+
+    return listings
+      .map((listing) => {
+        const matchesNeighborhood =
+          !selectedNeighborhood || listing.neighborhood === selectedNeighborhood;
+        if (!matchesNeighborhood) return null;
+
+        const score = scoreResult(listing, terms);
+        if (score <= 0) return null;
+        return { listing, score };
+      })
+      .filter(Boolean)
+      .sort((a, b) => (b?.score || 0) - (a?.score || 0))
+      .slice(0, 6)
+      .map((result) => result!.listing);
+  }, [hasSearchTerms, listings, selectedNeighborhood, trimmedQuery]);
 
   const clearSearch = () => {
     setQuery('');
@@ -309,6 +350,48 @@ export function DiscoverContent() {
           </button>
         )}
       </div>
+
+      {hasQuery && (
+        <div className="mb-4 rounded-xl border border-cream-300 bg-white shadow-sm overflow-hidden">
+          {!hasSearchTerms ? (
+            <p className="px-4 py-3 text-[14px] text-muted-foreground">
+              Type at least 2 characters to search.
+            </p>
+          ) : quickSuggestions.length === 0 ? (
+            <p className="px-4 py-3 text-[14px] text-muted-foreground">
+              No quick matches. Continue typing or browse categories.
+            </p>
+          ) : (
+            <div className="divide-y divide-cream-200">
+              {quickSuggestions.map((listing) => (
+                <Link
+                  key={listing.id}
+                  href={`/discover/listing/${listing.id}`}
+                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-cream-50 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-[15px] font-semibold text-foreground truncate">
+                      {listing.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5 text-[13px] text-muted-foreground">
+                      <span>{getListingCategory(listing.categories)?.name ?? 'Category'}</span>
+                      {listing.neighborhood && (
+                        <>
+                          <span>•</span>
+                          <span className="truncate">{listing.neighborhood}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[13px] font-medium text-ocean-500 flex-shrink-0">
+                    Open
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-2 overflow-x-auto pb-4 -mx-5 px-5 scrollbar-hide">
         <button
@@ -381,8 +464,9 @@ export function DiscoverContent() {
 }
 
 function SearchResultCard({ listing }: { listing: Listing }) {
-  const instagram = listing.social_media?.instagram;
-  const hasWebsite = listing.website_url && listing.website_url.length > 0;
+  const instagram = normalizeInstagramUrl(listing.social_media?.instagram);
+  const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const hasWebsite = websiteUrl.length > 0;
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 hover:shadow-md transition-shadow">
@@ -441,7 +525,7 @@ function SearchResultCard({ listing }: { listing: Listing }) {
             size="sm"
             className="h-8 text-[13px] border-ocean-200 text-ocean-500 hover:bg-ocean-50"
           >
-            <a href={listing.website_url} target="_blank" rel="noopener noreferrer">
+            <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
               <Globe size={14} className="mr-1.5" />
               Website
             </a>

@@ -93,8 +93,8 @@ function getListingCategory(
 }
 
 function highlightMatch(text: string, query: string) {
-  if (!query || query.length < 2) return text;
-  const terms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+  if (!query || query.length < 1) return text;
+  const terms = query.toLowerCase().split(/\s+/).filter((t) => t.length >= 1);
   if (!terms.length) return text;
 
   const regex = new RegExp(`(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
@@ -115,6 +115,7 @@ export function GlobalSearch() {
   const [listings, setListings] = useState<SearchListing[]>([]);
   const [loaded, setLoaded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const trimmedQuery = query.trim();
 
   const loadListings = useCallback(async () => {
     if (loaded) return;
@@ -172,8 +173,8 @@ export function GlobalSearch() {
   }, [open]);
 
   const results = useMemo(() => {
-    if (query.length < 2) return [];
-    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+    if (trimmedQuery.length < 1) return [];
+    const terms = trimmedQuery.toLowerCase().split(/\s+/).filter((t) => t.length >= 1);
     if (!terms.length) return [];
 
     return listings
@@ -182,7 +183,7 @@ export function GlobalSearch() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 8)
       .map(r => r.listing);
-  }, [query, listings]);
+  }, [trimmedQuery, listings]);
 
   const handleClose = () => {
     setOpen(false);
@@ -238,14 +239,14 @@ export function GlobalSearch() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          {!loaded && query.length >= 2 && (
+          {!loaded && trimmedQuery.length >= 1 && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 size={28} className="text-ocean-400 animate-spin" />
               <p className="text-[14px] text-muted-foreground">Searching...</p>
             </div>
           )}
 
-          {query.length < 2 && (
+          {trimmedQuery.length < 1 && (
             <div className="flex flex-col items-center text-center py-12 gap-4">
               <div className="w-16 h-16 rounded-2xl bg-ocean-50 flex items-center justify-center">
                 <Search size={28} className="text-ocean-400" />
@@ -268,7 +269,7 @@ export function GlobalSearch() {
             </div>
           )}
 
-          {query.length >= 2 && loaded && results.length === 0 && (
+          {trimmedQuery.length >= 1 && loaded && results.length === 0 && (
             <div className="flex flex-col items-center text-center py-12 gap-4">
               <div className="w-16 h-16 rounded-2xl bg-cream-200 flex items-center justify-center">
                 <Search size={28} className="text-muted-foreground" />

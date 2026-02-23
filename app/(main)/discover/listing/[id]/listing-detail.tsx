@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
+  CalendarDays,
   Phone,
   Globe,
   Instagram,
@@ -65,6 +66,11 @@ function normalizeInstagramUrl(url?: string | null) {
   if (!url) return '';
   if (url.startsWith('@')) return `https://instagram.com/${url.slice(1)}`;
   return normalizeExternalUrl(url);
+}
+
+function toServiceType(slug?: string | null) {
+  if (!slug) return 'restaurant';
+  return slug.replace(/-/g, ' ');
 }
 
 export function ListingDetail({
@@ -139,6 +145,11 @@ export function ListingDetail({
   const backHref = parentSlug
     ? `/discover/${parentSlug}/${listing.categories.slug}`
     : '/discover';
+  const bookingHref = `/bookings?${new URLSearchParams({
+    listingId: listing.id,
+    business: listing.name,
+    service: toServiceType(listing.categories.slug),
+  }).toString()}`;
 
   return (
     <div className="animate-fade-in pb-8">
@@ -229,6 +240,24 @@ export function ListingDetail({
             {listing.description}
           </p>
         </div>
+
+        <section className="rounded-xl border border-ocean-200 bg-ocean-50/50 p-4">
+          <h2 className="text-body font-semibold text-foreground mb-1">
+            Book this business with Calvia
+          </h2>
+          <p className="text-body-sm text-muted-foreground mb-3">
+            Start a prefilled booking request in seconds.
+          </p>
+          <Button asChild className="w-full h-11">
+            <Link href={bookingHref}>
+              <CalendarDays size={17} className="mr-2" />
+              Book now
+            </Link>
+          </Button>
+          <p className="text-[12px] text-muted-foreground mt-2">
+            Premium membership unlocks direct booking requests.
+          </p>
+        </section>
 
         {listing.address && (
           <div className="flex items-start gap-3 p-4 bg-cream-50 rounded-xl border border-cream-200">

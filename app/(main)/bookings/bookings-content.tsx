@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   CalendarDays,
@@ -32,6 +33,7 @@ interface BookingRow {
 }
 
 const INITIAL_FORM = {
+  listingId: null as string | null,
   businessName: '',
   serviceType: 'restaurant',
   bookingDate: '',
@@ -48,6 +50,7 @@ const STATUS_STYLES: Record<BookingStatus, string> = {
 };
 
 export function BookingsContent() {
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -55,6 +58,8 @@ export function BookingsContent() {
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'annual' | null>(null);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [form, setForm] = useState(INITIAL_FORM);
+  const [prefillApplied, setPrefillApplied] = useState(false);
+  const [checkoutStateHandled, setCheckoutStateHandled] = useState(false);
 
   const isFormValid = useMemo(() => {
     return form.businessName.trim().length > 1;
@@ -101,6 +106,56 @@ export function BookingsContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (prefillApplied) {
+      return;
+    }
+
+    const business = searchParams.get('business');
+    const service = searchParams.get('service');
+    const listingId = searchParams.get('listingId');
+    const date = searchParams.get('date');
+    const time = searchParams.get('time');
+
+    if (!business && !service && !listingId && !date && !time) {
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      businessName: business || prev.businessName,
+      serviceType: service || prev.serviceType,
+      listingId: listingId || prev.listingId,
+      bookingDate: date || prev.bookingDate,
+      bookingTime: time || prev.bookingTime,
+    }));
+
+    if (business) {
+      toast.success(`Booking ready for ${business}`);
+    }
+    setPrefillApplied(true);
+  }, [prefillApplied, searchParams]);
+
+  useEffect(() => {
+    if (checkoutStateHandled) {
+      return;
+    }
+
+    const checkoutState = searchParams.get('checkout');
+    if (!checkoutState) {
+      return;
+    }
+
+    if (checkoutState === 'success') {
+      toast.success('Checkout completed. Your membership is being activated.');
+      loadData();
+    } else if (checkoutState === 'cancelled') {
+      toast.message('Checkout was cancelled.');
+    }
+
+    setCheckoutStateHandled(true);
+  }, [checkoutStateHandled, loadData, searchParams]);
 
   const startCheckout = async (plan: 'monthly' | 'annual') => {
     if (!user) {
@@ -150,6 +205,7 @@ export function BookingsContent() {
     setSubmitting(true);
     const { error } = await getSupabase().from('bookings').insert({
       user_id: user.id,
+      listing_id: form.listingId || null,
       business_name: form.businessName.trim(),
       service_type: form.serviceType,
       booking_date: form.bookingDate || null,
