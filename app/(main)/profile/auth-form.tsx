@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Lock, Mail, User, Phone, Chrome, Apple, Shield } from 'lucide-react';
+import { Lock, Mail, User, Phone, Chrome, Apple, Shield, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { CalviaLogo } from '@/components/calvia-logo';
 
@@ -21,6 +21,38 @@ export function AuthForm() {
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setOauthLoading(provider);
+    try {
+      const redirectTo =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}/profile`
+          : undefined;
+
+      const { error } = await getSupabase().auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : `Could not start ${provider} login.`;
+      toast.error(message);
+      setOauthLoading(null);
+    }
+  };
+
+  const handlePasskey = () => {
+    toast.message(
+      'Passkey login will be enabled once Supabase Passkeys is configured in Auth settings for this project.'
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,25 +263,42 @@ export function AuthForm() {
 
       <div className="space-y-3">
         <Button
-          disabled
+          onClick={() => handleOAuth('google')}
+          disabled={oauthLoading !== null || loading}
           variant="outline"
-          className="w-full min-h-[56px] border-cream-300 text-muted-foreground opacity-60 text-body"
+          className="w-full min-h-[56px] border-cream-300 text-body"
         >
           <Chrome size={20} className="mr-2" />
           Google
-          <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
-            Coming Soon
-          </span>
+          {oauthLoading === 'google' && (
+            <span className="ml-auto text-[13px] font-medium text-ocean-500">
+              Redirecting...
+            </span>
+          )}
         </Button>
         <Button
-          disabled
+          onClick={() => handleOAuth('apple')}
+          disabled={oauthLoading !== null || loading}
           variant="outline"
-          className="w-full min-h-[56px] border-cream-300 text-muted-foreground opacity-60 text-body"
+          className="w-full min-h-[56px] border-cream-300 text-body"
         >
           <Apple size={20} className="mr-2" />
           Apple
+          {oauthLoading === 'apple' && (
+            <span className="ml-auto text-[13px] font-medium text-ocean-500">
+              Redirecting...
+            </span>
+          )}
+        </Button>
+        <Button
+          onClick={handlePasskey}
+          variant="outline"
+          className="w-full min-h-[56px] border-cream-300 text-body"
+        >
+          <KeyRound size={20} className="mr-2" />
+          Passkey
           <span className="ml-auto text-[13px] font-medium bg-cream-200 px-2.5 py-1 rounded-full">
-            Coming Soon
+            Setup required
           </span>
         </Button>
       </div>
