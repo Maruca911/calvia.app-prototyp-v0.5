@@ -83,7 +83,7 @@ export function EventsContent() {
           <h1 className="text-heading-lg font-semibold text-foreground">Events</h1>
         </div>
         <p className="text-body-sm text-muted-foreground">
-          What's happening in Calvia and southwest Mallorca.
+          What&apos;s happening in Calvia and southwest Mallorca.
         </p>
       </div>
 

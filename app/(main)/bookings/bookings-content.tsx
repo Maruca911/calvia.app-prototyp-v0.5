@@ -131,7 +131,12 @@ export function BookingsContent() {
       window.location.href = payload.url;
     } catch (error) {
       console.error('[Bookings] Checkout error', error);
-      toast.error('Could not open checkout. Please try again.');
+      const message = error instanceof Error ? error.message : 'Could not open checkout. Please try again.';
+      if (message === 'Unauthorized') {
+        toast.error('Session could not be verified. Please sign out and sign in again.');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setCheckoutLoading(null);
     }
@@ -369,4 +374,3 @@ export function BookingsContent() {
     </div>
   );
 }
-

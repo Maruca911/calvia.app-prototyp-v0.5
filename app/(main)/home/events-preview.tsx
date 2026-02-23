@@ -54,7 +54,7 @@ export function EventsPreview({ events }: { events: CalviaEvent[] }) {
               Events & Happenings
             </h2>
             <p className="text-[13px] text-muted-foreground">
-              What's on in Calvia this week
+              What&apos;s on in Calvia this week
             </p>
           </div>
         </div>
