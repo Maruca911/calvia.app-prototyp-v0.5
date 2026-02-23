@@ -15,11 +15,13 @@ import {
   Heart,
   Mail,
   ChevronRight,
+  MessageCircle,
   Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
+import { buildBookingSupportMessage, buildSupportWhatsAppUrl } from '@/lib/support';
 import { toast } from 'sonner';
 import { ReviewSection } from './review-section';
 
@@ -150,6 +152,13 @@ export function ListingDetail({
     business: listing.name,
     service: toServiceType(listing.categories.slug),
   }).toString()}`;
+  const supportWhatsAppUrl = buildSupportWhatsAppUrl(
+    buildBookingSupportMessage({
+      businessName: listing.name,
+      serviceType: toServiceType(listing.categories.slug),
+      source: 'listing-detail',
+    })
+  );
 
   return (
     <div className="animate-fade-in pb-8">
@@ -257,6 +266,22 @@ export function ListingDetail({
           <p className="text-[12px] text-muted-foreground mt-2">
             Premium membership unlocks direct booking requests.
           </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+            {listing.contact_phone && (
+              <Button asChild variant="outline" className="border-ocean-200 text-ocean-600 hover:bg-ocean-50">
+                <a href={`tel:${listing.contact_phone}`}>
+                  <Phone size={16} className="mr-2" />
+                  Call restaurant
+                </a>
+              </Button>
+            )}
+            <Button asChild variant="outline" className="border-sage-200 text-sage-700 hover:bg-sage-50">
+              <a href={supportWhatsAppUrl} target="_blank" rel="noopener noreferrer">
+                <MessageCircle size={16} className="mr-2" />
+                WhatsApp support
+              </a>
+            </Button>
+          </div>
         </section>
 
         {listing.address && (
@@ -333,7 +358,11 @@ export function ListingDetail({
           </div>
         </div>
 
-        <ReviewSection listingId={listing.id} />
+        <ReviewSection
+          listingId={listing.id}
+          listingName={listing.name}
+          listingAddress={listing.address || listing.neighborhood}
+        />
 
         <nav className="flex items-center gap-1.5 text-[13px] text-muted-foreground overflow-x-auto scrollbar-hide">
           <Link href="/discover" className="hover:text-ocean-500 transition-colors flex-shrink-0">

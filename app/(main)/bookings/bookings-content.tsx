@@ -8,12 +8,15 @@ import {
   Clock3,
   Loader2,
   Lock,
+  MessageCircle,
+  Phone,
   Sparkles,
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
+import { buildBookingSupportMessage, buildSupportWhatsAppUrl } from '@/lib/support';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +33,12 @@ interface BookingRow {
   party_size: number;
   status: BookingStatus;
   created_at: string;
+}
+
+interface ListingSupportInfo {
+  id: string;
+  name: string;
+  contact_phone: string;
 }
 
 const INITIAL_FORM = {
@@ -61,10 +70,26 @@ export function BookingsContent() {
   const [prefillApplied, setPrefillApplied] = useState(false);
   const [checkoutStateHandled, setCheckoutStateHandled] = useState(false);
   const [checkoutActivationInFlight, setCheckoutActivationInFlight] = useState(false);
+  const [listingPhone, setListingPhone] = useState('');
+  const [lastSubmittedPhone, setLastSubmittedPhone] = useState('');
 
   const isFormValid = useMemo(() => {
     return form.businessName.trim().length > 1;
   }, [form.businessName]);
+
+  const quickCallPhone = lastSubmittedPhone || listingPhone;
+  const supportWhatsAppUrl = useMemo(() => {
+    return buildSupportWhatsAppUrl(
+      buildBookingSupportMessage({
+        businessName: form.businessName || 'Booking request',
+        serviceType: form.serviceType,
+        bookingDate: form.bookingDate || null,
+        bookingTime: form.bookingTime || null,
+        partySize: form.partySize,
+        source: 'bookings',
+      })
+    );
+  }, [form.bookingDate, form.bookingTime, form.businessName, form.partySize, form.serviceType]);
 
   const loadData = useCallback(async () => {
     if (!user) {
@@ -187,6 +212,48 @@ export function BookingsContent() {
   }, [prefillApplied, searchParams]);
 
   useEffect(() => {
+    if (!form.listingId) {
+      setListingPhone('');
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadListingSupportInfo = async () => {
+      const { data, error } = await getSupabase()
+        .from('listings')
+        .select('id, name, contact_phone')
+        .eq('id', form.listingId)
+        .maybeSingle();
+
+      if (cancelled) {
+        return;
+      }
+
+      if (error) {
+        console.warn('[Bookings] Unable to load listing support info', error.message);
+        return;
+      }
+
+      const info = data as ListingSupportInfo | null;
+      if (!info) {
+        return;
+      }
+
+      setListingPhone(info.contact_phone || '');
+      if (!form.businessName && info.name) {
+        setForm((prev) => ({ ...prev, businessName: info.name }));
+      }
+    };
+
+    void loadListingSupportInfo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.listingId, form.businessName]);
+
+  useEffect(() => {
     if (checkoutStateHandled) {
       return;
     }
@@ -281,6 +348,7 @@ export function BookingsContent() {
     }
 
     toast.success('Booking request submitted.');
+    setLastSubmittedPhone(listingPhone);
     setForm(INITIAL_FORM);
     setSubmitting(false);
     loadData();
@@ -444,6 +512,37 @@ export function BookingsContent() {
         </section>
       )}
 
+      <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-3">
+        <h2 className="text-body font-semibold text-foreground">Need instant confirmation?</h2>
+        <p className="text-body-sm text-muted-foreground">
+          For urgent reservations, call the business directly or message Calvia WhatsApp support while your request is processing.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {quickCallPhone ? (
+            <Button asChild variant="outline" className="border-ocean-200 text-ocean-600 hover:bg-ocean-50">
+              <a href={`tel:${quickCallPhone}`}>
+                <Phone size={16} className="mr-2" />
+                Call business
+              </a>
+            </Button>
+          ) : (
+            <Button variant="outline" disabled className="border-cream-300">
+              <Phone size={16} className="mr-2" />
+              Call business
+            </Button>
+          )}
+          <Button asChild variant="outline" className="border-sage-200 text-sage-700 hover:bg-sage-50">
+            <a href={supportWhatsAppUrl} target="_blank" rel="noopener noreferrer">
+              <MessageCircle size={16} className="mr-2" />
+              WhatsApp support
+            </a>
+          </Button>
+        </div>
+        <p className="text-[12px] text-muted-foreground">
+          Target response SLA: within 15 minutes during partner business hours.
+        </p>
+      </section>
+
       <section className="space-y-3">
         <h2 className="text-body font-semibold text-foreground">My bookings</h2>
         {checkoutActivationInFlight && (
@@ -487,6 +586,11 @@ export function BookingsContent() {
                     {booking.party_size} people
                   </span>
                 </div>
+                {booking.status === 'requested' && (
+                  <p className="text-[12px] text-muted-foreground">
+                    Awaiting partner confirmation. Need fast confirmation? Use Call or WhatsApp support above.
+                  </p>
+                )}
               </article>
             ))}
           </div>

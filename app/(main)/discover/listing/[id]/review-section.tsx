@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Star, Send } from 'lucide-react';
+import { ExternalLink, Send, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
@@ -11,12 +11,31 @@ interface Review {
   id: string;
   rating: number;
   comment: string;
+  content?: string;
   created_at: string;
+  updated_at?: string;
   user_id: string;
   profiles: { full_name: string } | null;
 }
 
-export function ReviewSection({ listingId }: { listingId: string }) {
+function normalizeReview(review: Review): Review {
+  return {
+    ...review,
+    comment: review.comment || review.content || '',
+  };
+}
+
+function byNewest(a: Review, b: Review): number {
+  return new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime();
+}
+
+interface ReviewSectionProps {
+  listingId: string;
+  listingName?: string;
+  listingAddress?: string;
+}
+
+export function ReviewSection({ listingId, listingName, listingAddress }: ReviewSectionProps) {
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [rating, setRating] = useState(0);
@@ -24,29 +43,94 @@ export function ReviewSection({ listingId }: { listingId: string }) {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [userReview, setUserReview] = useState<Review | null>(null);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   const loadReviews = useCallback(async () => {
-    const { data } = await getSupabase()
+    const { data, error } = await getSupabase()
       .from('reviews')
-      .select('*, profiles:user_id(full_name)')
+      .select('id, rating, comment, content, created_at, updated_at, user_id, profiles:user_id(full_name)')
       .eq('listing_id', listingId)
+      .order('updated_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[Reviews] Failed to load reviews', error);
+      toast.error('Could not load reviews.');
+      return;
+    }
+
     if (data) {
-      setReviews(data as unknown as Review[]);
+      const normalized = (data as unknown as Review[]).map(normalizeReview).sort(byNewest);
+      setReviews(normalized);
       if (user) {
-        const mine = (data as unknown as Review[]).find(r => r.user_id === user.id);
+        const mine = normalized.find((r) => r.user_id === user.id);
         if (mine) {
           setUserReview(mine);
           setRating(mine.rating);
           setComment(mine.comment);
+        } else {
+          setUserReview(null);
+          setRating(0);
+          setComment('');
         }
       }
     }
   }, [listingId, user]);
 
   useEffect(() => {
-    loadReviews();
+    void loadReviews();
   }, [loadReviews]);
+
+  useEffect(() => {
+    const supabase = getSupabase();
+    const channel = supabase
+      .channel(`reviews:listing:${listingId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews',
+          filter: `listing_id=eq.${listingId}`,
+        },
+        () => {
+          void loadReviews();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [listingId, loadReviews]);
+
+  const trackExternalReviewClick = async (provider: 'google' | 'tripadvisor', destinationUrl: string) => {
+    try {
+      const {
+        data: { session },
+      } = await getSupabase().auth.getSession();
+
+      await fetch('/api/reviews/outbound-click', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          listingId,
+          provider,
+          destinationUrl,
+        }),
+      });
+    } catch (error) {
+      console.warn('[Reviews] Failed to track outbound review click', error);
+    }
+  };
+
+  const openExternalReview = (provider: 'google' | 'tripadvisor', url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    void trackExternalReviewClick(provider, url);
+  };
 
   const submitReview = async () => {
     if (!user) {
@@ -57,25 +141,67 @@ export function ReviewSection({ listingId }: { listingId: string }) {
       toast('Please select a star rating');
       return;
     }
+
     setSubmitting(true);
+    const previousReviews = reviews;
+    const previousUserReview = userReview;
+
+    const optimisticReview: Review = normalizeReview({
+      id: userReview?.id || `tmp-${Date.now()}`,
+      rating,
+      comment,
+      content: comment,
+      created_at: userReview?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: user.id,
+      profiles: previousUserReview?.profiles || { full_name: user.email || 'Calvia Member' },
+    });
+
+    setReviews((prev) => {
+      const withoutMine = prev.filter((item) => item.user_id !== user.id);
+      return [optimisticReview, ...withoutMine].sort(byNewest);
+    });
+    setUserReview(optimisticReview);
+    setJustSubmitted(false);
+
     try {
-      if (userReview) {
-        await getSupabase()
-          .from('reviews')
-          .update({ rating, comment })
-          .eq('id', userReview.id);
-        toast.success('Review updated');
-      } else {
-        await getSupabase()
-          .from('reviews')
-          .insert({ listing_id: listingId, user_id: user.id, rating, comment });
-        toast.success('Review submitted');
+      const { data, error } = await getSupabase()
+        .from('reviews')
+        .upsert(
+          {
+            listing_id: listingId,
+            user_id: user.id,
+            rating,
+            comment,
+            content: comment,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,listing_id' }
+        )
+        .select('id, rating, comment, content, created_at, updated_at, user_id, profiles:user_id(full_name)')
+        .single();
+
+      if (error || !data) {
+        throw error || new Error('Unknown review write error');
       }
-      await loadReviews();
-    } catch {
-      toast.error('Could not save review');
+
+      const savedReview = normalizeReview(data as unknown as Review);
+      setReviews((prev) => {
+        const withoutMine = prev.filter((item) => item.user_id !== user.id);
+        return [savedReview, ...withoutMine].sort(byNewest);
+      });
+      setUserReview(savedReview);
+      setJustSubmitted(true);
+      toast.success(userReview ? 'Review updated' : 'Review submitted');
+    } catch (error) {
+      console.error('[Reviews] Could not save review', error);
+      setReviews(previousReviews);
+      setUserReview(previousUserReview);
+      toast.error('Could not save review. Please try again.');
+    } finally {
+      setSubmitting(false);
+      void loadReviews();
     }
-    setSubmitting(false);
   };
 
   const avgRating = reviews.length
@@ -89,6 +215,10 @@ export function ReviewSection({ listingId }: { listingId: string }) {
     if (!name) return '?';
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   };
+
+  const externalQuery = [listingName, listingAddress, 'Mallorca'].filter(Boolean).join(' ');
+  const googleReviewUrl = `https://www.google.com/search?q=${encodeURIComponent(`${externalQuery} reviews`)}`;
+  const tripAdvisorReviewUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(externalQuery)}`;
 
   return (
     <section className="space-y-4">
@@ -146,6 +276,35 @@ export function ReviewSection({ listingId }: { listingId: string }) {
           </Button>
         </div>
       </div>
+
+      {user && (userReview || justSubmitted) && (
+        <div className="p-4 bg-cream-50 rounded-xl border border-cream-200 space-y-2">
+          <p className="text-body-sm font-medium text-foreground">
+            Help this business grow visibility
+          </p>
+          <p className="text-[13px] text-muted-foreground">
+            You can also leave a review on Google or Tripadvisor. External platforms have their own moderation and policy rules.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="justify-between border-cream-300"
+              onClick={() => openExternalReview('google', googleReviewUrl)}
+            >
+              Leave on Google
+              <ExternalLink size={14} />
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-between border-cream-300"
+              onClick={() => openExternalReview('tripadvisor', tripAdvisorReviewUrl)}
+            >
+              Leave on Tripadvisor
+              <ExternalLink size={14} />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {reviews.length > 0 && (
         <div className="space-y-3">

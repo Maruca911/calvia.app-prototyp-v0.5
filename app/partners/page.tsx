@@ -23,9 +23,9 @@ import { Button } from '@/components/ui/button';
 import { AvailabilitySettingsPanel } from './availability-settings-panel';
 
 export const metadata: Metadata = {
-  title: 'Partner Dashboard Preview | Calvia.app',
+  title: 'Master Partner Dashboard | Calvia.app',
   description:
-    'Preview of the Calvia partner dashboard for bookings, analytics, billing, and partner services.',
+    'Master operations dashboard for Calvia.app covering bookings, analytics, partner services, and support.',
   alternates: {
     canonical: '/partners',
   },
@@ -97,7 +97,7 @@ function statusClass(status: string) {
   return 'bg-cream-200 text-foreground';
 }
 
-export default function PartnerDashboardPreviewPage() {
+export default function PartnerDashboardMasterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cream-50 via-white to-ocean-50/40">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
@@ -109,13 +109,16 @@ export default function PartnerDashboardPreviewPage() {
                 <CalviaWordmark />
               </div>
               <p className="text-[12px] font-semibold uppercase tracking-wide text-ocean-500">
-                Partner Dashboard Preview
+                Calvia.app Master Dashboard
               </p>
               <h1 className="text-heading-lg text-foreground mt-1">
                 Operations Hub for Local Partners
               </h1>
               <p className="text-body-sm text-muted-foreground mt-1">
                 Receive and track bookings, monitor fees, manage member rewards, and request growth services.
+              </p>
+              <p className="text-[12px] text-muted-foreground mt-2">
+                Per-business dashboards are available at <span className="font-medium text-foreground">/partners/[business-slug]</span>.
               </p>
             </div>
             <div className="flex gap-2">
@@ -127,6 +130,9 @@ export default function PartnerDashboardPreviewPage() {
               </Button>
               <Button asChild>
                 <Link href="mailto:partners@calvia.app">Request Early Access</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/partners/tutti-sensi">Open Business Demo</Link>
               </Button>
             </div>
           </div>
