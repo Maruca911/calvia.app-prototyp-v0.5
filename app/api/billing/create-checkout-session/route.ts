@@ -97,6 +97,25 @@ export async function POST(request: NextRequest) {
     }
 
     let customerId = existingMembership?.stripe_customer_id || null;
+
+    // Recover gracefully if a stored Stripe customer id no longer exists.
+    if (customerId) {
+      try {
+        const existingCustomer = await stripe.customers.retrieve(customerId);
+        if (existingCustomer.deleted) {
+          customerId = null;
+        }
+      } catch (customerError) {
+        const message =
+          customerError instanceof Error ? customerError.message : String(customerError);
+        if (/No such customer/i.test(message)) {
+          customerId = null;
+        } else {
+          throw customerError;
+        }
+      }
+    }
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email || undefined,
