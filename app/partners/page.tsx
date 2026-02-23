@@ -91,6 +91,12 @@ const slaAlerts = [
   { title: 'Reply rate below target this week', severity: 'Medium' },
 ];
 
+const verifiedPartnerLinks = [
+  { label: 'The Agency', slug: 'the-agency' },
+  { label: 'Rib Club', slug: 'rib-club' },
+  { label: 'Just Curry', slug: 'just-curry' },
+];
+
 function statusClass(status: string) {
   if (status === 'New') return 'bg-ocean-100 text-ocean-700';
   if (status === 'Confirmed') return 'bg-sage-100 text-sage-700';
@@ -132,11 +138,22 @@ export default function PartnerDashboardMasterPage() {
                 <Link href="mailto:partners@calvia.app">Request Early Access</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/partners/tutti-sensi">Open Business Demo</Link>
+                <Link href="/partners/just-curry">Open Business Demo</Link>
               </Button>
             </div>
           </div>
         </header>
+
+        <section className="rounded-xl border border-cream-200 bg-white p-4 sm:p-5">
+          <h2 className="text-body font-semibold text-foreground mb-3">Verified Partner Dashboards</h2>
+          <div className="flex flex-wrap gap-2">
+            {verifiedPartnerLinks.map((partner) => (
+              <Button key={partner.slug} asChild size="sm" variant="outline">
+                <Link href={`/partners/${partner.slug}`}>{partner.label}</Link>
+              </Button>
+            ))}
+          </div>
+        </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           <article className="rounded-xl border border-cream-200 bg-white p-4">
