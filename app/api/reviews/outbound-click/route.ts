@@ -87,11 +87,15 @@ export async function POST(request: NextRequest) {
 
     const { error } = await supabase.from('review_outbound_events').insert(payload);
     if (error) {
+      if (error.code === '42P01') {
+        // Migration has not been applied yet. Avoid blocking outbound links.
+        return NextResponse.json({ success: true, tracked: false });
+      }
       console.error('[Reviews] Failed to track outbound click', error);
       return NextResponse.json({ error: 'Failed to track outbound click' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, tracked: true });
   } catch (error) {
     console.error('[Reviews] outbound-click route failed', error);
     const message = error instanceof Error ? error.message : 'Internal server error';
