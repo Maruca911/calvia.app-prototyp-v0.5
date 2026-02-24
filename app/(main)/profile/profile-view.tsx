@@ -26,6 +26,7 @@ import {
 import { toast } from 'sonner';
 import { EditProfileDrawer } from './edit-profile-drawer';
 import { PasskeySecurityCard } from './passkey-security-card';
+import { isBillingEnabled } from '@/lib/features';
 
 interface Profile {
   full_name: string;
@@ -283,7 +284,9 @@ function NotificationsSection({
   userId: string;
   onUpdate: () => void;
 }) {
+  const billingEnabled = isBillingEnabled;
   const isPremium = profile?.is_premium || false;
+  const premiumUnlocked = !billingEnabled || isPremium;
   const settings = profile?.notification_settings || {
     morning_briefing: false,
     booking_reminders: false,
@@ -314,22 +317,22 @@ function NotificationsSection({
         Notifications
       </h3>
       <div className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm">
-        {!isPremium && (
+        {billingEnabled && !isPremium && (
           <div className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground bg-cream-100 px-3 py-1.5 rounded-lg mb-4">
             <Lock size={11} />
-            <span>Morning Briefing requires Calvia Premium</span>
+            <span>Morning Briefing premium controls are planned for v2.</span>
           </div>
         )}
         <div className="space-y-5">
           {ITEMS.map((item) => {
-            const isLocked = item.premium && !isPremium;
+            const isLocked = item.premium && !premiumUnlocked;
             return (
               <div key={item.key} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`text-body text-foreground ${isLocked ? 'opacity-50' : ''}`}>
                     {item.label}
                   </span>
-                  {item.premium && (
+                  {item.premium && billingEnabled && (
                     <span className="text-[10px] font-bold text-ocean-500 bg-ocean-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
                       Premium
                     </span>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { isBillingEnabled } from '@/lib/features';
 
 export const runtime = 'nodejs';
 
@@ -125,6 +126,10 @@ async function syncMembership(subscription: Stripe.Subscription) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isBillingEnabled) {
+    return NextResponse.json({ error: 'Billing is disabled in this release' }, { status: 404 });
+  }
+
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return NextResponse.json({ error: 'Missing webhook secret' }, { status: 500 });
@@ -189,4 +194,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ received: true });
 }
-

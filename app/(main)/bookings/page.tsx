@@ -6,7 +6,7 @@ import { BookingsContent } from './bookings-content';
 export const metadata: Metadata = {
   title: 'Bookings | Calvia.app',
   description:
-    'Book tables, classes, and partner experiences in Calvia. Premium members unlock direct booking support and exclusive rates.',
+    'Book tables, classes, and partner experiences in Calvia with direct in-app booking requests.',
   alternates: {
     canonical: '/bookings',
   },
@@ -19,4 +19,3 @@ export default function BookingsPage() {
 
   return <BookingsContent />;
 }
-

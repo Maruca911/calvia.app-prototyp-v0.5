@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Calvia.app',
-  description: 'Privacy policy for Calvia.app services, including bookings, memberships, and partner interactions.',
+  description: 'Privacy policy for Calvia.app services, including bookings and partner interactions.',
   alternates: {
     canonical: '/privacy',
   },
@@ -20,8 +20,7 @@ export default function PrivacyPage() {
 
         <section className="rounded-xl border border-cream-200 bg-white p-5 space-y-3">
           <p className="text-body-sm text-muted-foreground">
-            Calvia.app processes account, booking, and partner interaction data to provide discovery, booking,
-            and membership services.
+            Calvia.app processes account, booking, and partner interaction data to provide discovery and booking services.
           </p>
           <p className="text-body-sm text-muted-foreground">
             We collect only the information required to run the product, support customer service, and comply with

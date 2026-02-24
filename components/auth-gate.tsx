@@ -66,7 +66,7 @@ function WelcomeGate({ onEnter }: { onEnter: () => void }) {
                 Calvia App
               </h1>
               <h2 className="text-heading-sm text-white/90 font-medium drop-shadow-sm">
-                Your discreet concierge
+                The modern yellow pages of southwest Mallorca
               </h2>
               <p className="text-body-sm text-white/80 max-w-xs mx-auto leading-relaxed drop-shadow-sm">
                 Your local guide to the best of southwest Mallorca

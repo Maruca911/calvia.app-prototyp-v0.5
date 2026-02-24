@@ -264,7 +264,7 @@ export function ListingDetail({
             </Link>
           </Button>
           <p className="text-[12px] text-muted-foreground mt-2">
-            Premium membership unlocks direct booking requests.
+            Booking requests are currently free for all users.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
             {listing.contact_phone && (

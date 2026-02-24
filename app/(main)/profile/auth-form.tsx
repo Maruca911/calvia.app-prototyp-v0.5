@@ -20,7 +20,6 @@ export function AuthForm() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
@@ -184,42 +183,44 @@ export function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
 
-    if (mode === 'signup') {
-      if (password.length < 6) {
-        toast.error('Password must be at least 6 characters');
-        setLoading(false);
-        return;
-      }
-      if (!consentGiven) {
-        toast.error('Please accept the privacy policy to continue');
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(email, password, fullName);
-      if (error) {
-        toast.error(error);
-      } else {
-        if (phone.trim()) {
-          const { data: { user } } = await getSupabase().auth.getUser();
-          if (user) {
-            await getSupabase()
-              .from('profiles')
-              .update({ phone_number: phone.trim() })
-              .eq('id', user.id);
-          }
+      if (mode === 'signup') {
+        if (password.length < 6) {
+          toast.error('Password must be at least 6 characters');
+          return;
         }
-        toast.success('Welcome to Calvia!', {
-          description: 'Your account has been created.',
-        });
+        if (!consentGiven) {
+          toast.error('Please accept the privacy policy to continue');
+          return;
+        }
+        const { error } = await signUp(normalizedEmail, password, fullName.trim());
+        if (error) {
+          toast.error(error);
+        } else {
+          if (phone.trim()) {
+            const { data: { user } } = await getSupabase().auth.getUser();
+            if (user) {
+              await getSupabase()
+                .from('profiles')
+                .update({ phone_number: phone.trim() })
+                .eq('id', user.id);
+            }
+          }
+          toast.success('Welcome to Calvia!', {
+            description: 'Your account has been created.',
+          });
+        }
+      } else {
+        const { error } = await signIn(normalizedEmail, password);
+        if (error) {
+          toast.error(error);
+        }
       }
-    } else {
-      const { error } = await signIn(email, password);
-      if (error) {
-        toast.error(error);
-      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -234,7 +235,7 @@ export function AuthForm() {
         <p className="text-body text-muted-foreground">
           {mode === 'signin'
             ? 'Sign in to access your member profile'
-            : 'Your premium guide to life in southwest Mallorca'}
+            : 'Your local guide to life in southwest Mallorca'}
         </p>
       </div>
 
@@ -316,19 +317,6 @@ export function AuthForm() {
             <p className="text-[13px] text-muted-foreground leading-relaxed pl-1">
               We may contact you for early access when our native app launches.
             </p>
-          </div>
-        )}
-
-        {mode === 'signin' && (
-          <div className="flex items-center gap-2.5">
-            <Checkbox
-              id="stay-logged-in"
-              checked={stayLoggedIn}
-              onCheckedChange={(checked) => setStayLoggedIn(checked === true)}
-            />
-            <label htmlFor="stay-logged-in" className="text-[15px] text-foreground cursor-pointer select-none">
-              Stay logged in
-            </label>
           </div>
         )}
 

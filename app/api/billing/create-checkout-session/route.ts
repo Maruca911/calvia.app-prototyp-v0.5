@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe';
+import { isBillingEnabled } from '@/lib/features';
 
 type BillingPlan = 'monthly' | 'annual';
 
@@ -60,6 +61,10 @@ async function getUserFromRequest(
 }
 
 export async function POST(request: NextRequest) {
+  if (!isBillingEnabled) {
+    return NextResponse.json({ error: 'Billing is disabled in this release' }, { status: 403 });
+  }
+
   try {
     const context = await getUserFromRequest(request);
     if (!context) {

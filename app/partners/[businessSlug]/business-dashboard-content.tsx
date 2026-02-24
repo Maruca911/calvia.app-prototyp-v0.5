@@ -1290,17 +1290,35 @@ export function BusinessDashboardContent({ businessSlug }: { businessSlug: strin
   }
 
   if (error || !business) {
+    const showAccessHelp = (error || '').toLowerCase().includes('do not have access');
     return (
       <div className="min-h-screen bg-gradient-to-b from-cream-50 to-white">
         <div className="mx-auto max-w-4xl px-4 py-10">
-          <div className="rounded-xl border border-cream-200 bg-white p-6">
+          <div className="rounded-xl border border-cream-200 bg-white p-6 space-y-4">
             <div className="text-red-600 text-body-sm flex items-center gap-2">
               <AlertCircle size={16} />
               {error || 'Unable to open this dashboard.'}
             </div>
-            <Button asChild variant="outline" className="mt-4">
-              <Link href="/partners">Back to master dashboard</Link>
-            </Button>
+            {showAccessHelp && (
+              <div className="rounded-lg border border-cream-200 bg-cream-50 p-3 text-[13px] text-muted-foreground space-y-1">
+                <p>Use the same account email that received the partner invitation.</p>
+                <p>
+                  If access is still blocked, ask for a new invite token via{' '}
+                  <a href="mailto:partners@calvia.app" className="text-ocean-600 underline underline-offset-2">
+                    partners@calvia.app
+                  </a>
+                  .
+                </p>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline">
+                <Link href="/partners">Back to master dashboard</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href="/partners/support">Open support center</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

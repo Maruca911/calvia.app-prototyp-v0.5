@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from 'react';
+import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, MapPin, Star, ArrowRight, Loader2, Utensils, ShoppingBag, Briefcase, Heart, Home } from 'lucide-react';
-import { getSupabase } from '@/lib/supabase';
-import { CORE_DISCOVER_CATEGORY_SLUGS } from '@/lib/discover-taxonomy';
 
 interface SearchListing {
   id: string;
@@ -112,48 +110,55 @@ export function GlobalSearch() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [listings, setListings] = useState<SearchListing[]>([]);
+  const [searchPool, setSearchPool] = useState<SearchListing[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const trimmedQuery = query.trim();
 
-  const loadListings = useCallback(async () => {
-    if (loaded) return;
-    try {
-      const supabase = getSupabase();
-      const [catRes, listRes] = await Promise.all([
-        supabase
-          .from('categories')
-          .select('id')
-          .is('parent_id', null)
-          .in('slug', [...CORE_DISCOVER_CATEGORY_SLUGS]),
-        supabase
-          .from('listings')
-          .select('id, name, neighborhood, is_featured, description, tags, categories!inner(name, slug, parent_id)')
-          .order('is_featured', { ascending: false })
-          .order('name'),
-      ]);
-
-      const allowedParentIds = new Set((catRes.data ?? []).map((category) => category.id));
-      const allowedSlugs = new Set<string>(CORE_DISCOVER_CATEGORY_SLUGS as readonly string[]);
-      const filteredListings = ((listRes.data ?? []) as SearchListing[]).filter((listing) => {
-        const category = getListingCategory(listing.categories);
-        if (!category) return false;
-        if (category.parent_id && allowedParentIds.has(category.parent_id)) return true;
-        return allowedSlugs.has(category.slug);
-      });
-
-      setListings(filteredListings);
-    } finally {
-      setLoaded(true);
-    }
-  }, [loaded]);
-
   useEffect(() => {
-    if (open && !loaded) {
-      loadListings();
+    if (!open) {
+      return;
     }
-  }, [open, loaded, loadListings]);
+
+    if (trimmedQuery.length < 1) {
+      setSearchPool([]);
+      setLoaded(false);
+      setLoadingSearch(false);
+      setSearchError(null);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setLoadingSearch(true);
+      setSearchError(null);
+
+      try {
+        const response = await fetch(
+          `/api/search/listings?q=${encodeURIComponent(trimmedQuery)}&limit=18`
+        );
+        const payload = (await response.json()) as { results?: SearchListing[]; error?: string };
+        if (!response.ok) {
+          throw new Error(payload.error || 'Search unavailable');
+        }
+
+        setSearchPool(payload.results || []);
+      } catch (error) {
+        console.error('[GlobalSearch] Search failed', error);
+        const message = error instanceof Error ? error.message : 'Search unavailable';
+        setSearchError(message);
+        setSearchPool([]);
+      } finally {
+        setLoaded(true);
+        setLoadingSearch(false);
+      }
+    }, 220);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [open, trimmedQuery]);
 
   useEffect(() => {
     if (open) {
@@ -177,20 +182,20 @@ export function GlobalSearch() {
     const terms = trimmedQuery.toLowerCase().split(/\s+/).filter((t) => t.length >= 1);
     if (!terms.length) return [];
 
-    return listings
+    return searchPool
       .map((listing) => ({ listing, score: scoreResult(listing, terms) }))
       .filter(r => r.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, 8)
       .map(r => r.listing);
-  }, [trimmedQuery, listings]);
+  }, [trimmedQuery, searchPool]);
 
   const handleClose = () => {
     setOpen(false);
     setQuery('');
   };
 
-  const goToDiscover = () => {
+    const goToDiscover = () => {
     handleClose();
     router.push('/discover');
   };
@@ -239,7 +244,7 @@ export function GlobalSearch() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          {!loaded && trimmedQuery.length >= 1 && (
+          {loadingSearch && trimmedQuery.length >= 1 && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 size={28} className="text-ocean-400 animate-spin" />
               <p className="text-[14px] text-muted-foreground">Searching...</p>
@@ -269,17 +274,19 @@ export function GlobalSearch() {
             </div>
           )}
 
-          {trimmedQuery.length >= 1 && loaded && results.length === 0 && (
+          {trimmedQuery.length >= 1 && loaded && !loadingSearch && results.length === 0 && (
             <div className="flex flex-col items-center text-center py-12 gap-4">
               <div className="w-16 h-16 rounded-2xl bg-cream-200 flex items-center justify-center">
                 <Search size={28} className="text-muted-foreground" />
               </div>
               <div>
                 <p className="text-[17px] font-semibold text-foreground mb-1">
-                  No results found
+                  {searchError ? 'Search unavailable' : 'No results found'}
                 </p>
                 <p className="text-[15px] text-muted-foreground">
-                  Nothing matched &ldquo;{query}&rdquo;. Try different keywords.
+                  {searchError
+                    ? 'Please try again in a moment.'
+                    : `Nothing matched “${query}”. Try different keywords.`}
                 </p>
               </div>
               <button

@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
 import { buildBookingSupportMessage, buildSupportWhatsAppUrl } from '@/lib/support';
+import { isBillingEnabled } from '@/lib/features';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -72,13 +73,17 @@ export function BookingsContent() {
   const [checkoutActivationInFlight, setCheckoutActivationInFlight] = useState(false);
   const [listingPhone, setListingPhone] = useState('');
   const [lastSubmittedPhone, setLastSubmittedPhone] = useState('');
+  const billingEnabled = isBillingEnabled;
 
   const isFormValid = useMemo(() => {
     return form.businessName.trim().length > 1;
   }, [form.businessName]);
 
   const quickCallPhone = lastSubmittedPhone || listingPhone;
-  const showInstantConfirmation = Boolean(lastSubmittedPhone) || bookings.some((booking) => booking.status === 'requested');
+  const canRequestBookings = !billingEnabled || isPremium;
+  const hasPendingRequests = bookings.some((booking) => booking.status === 'requested');
+  const hasAnyRequestHistory = bookings.length > 0;
+  const showInstantConfirmation = Boolean(lastSubmittedPhone) || hasAnyRequestHistory;
   const supportWhatsAppUrl = useMemo(() => {
     return buildSupportWhatsAppUrl(
       buildBookingSupportMessage({
@@ -118,7 +123,7 @@ export function BookingsContent() {
           .order('created_at', { ascending: false }),
       ]);
 
-    setIsPremium(Boolean(profileData?.is_premium || membershipData));
+    setIsPremium(!billingEnabled || Boolean(profileData?.is_premium || membershipData));
 
     if (bookingError) {
       console.error('[Bookings] Failed to load bookings', bookingError);
@@ -128,7 +133,7 @@ export function BookingsContent() {
     }
 
     setLoading(false);
-  }, [user]);
+  }, [billingEnabled, user]);
 
   const confirmCheckoutSession = useCallback(
     async (sessionId: string) => {
@@ -255,6 +260,10 @@ export function BookingsContent() {
   }, [form.listingId, form.businessName]);
 
   useEffect(() => {
+    if (!billingEnabled) {
+      return;
+    }
+
     if (checkoutStateHandled) {
       return;
     }
@@ -282,9 +291,14 @@ export function BookingsContent() {
     };
 
     void handleCheckoutState();
-  }, [checkoutStateHandled, confirmCheckoutSession, loadData, searchParams]);
+  }, [billingEnabled, checkoutStateHandled, confirmCheckoutSession, loadData, searchParams]);
 
   const startCheckout = async (plan: 'monthly' | 'annual') => {
+    if (!billingEnabled) {
+      toast.message('Billing is disabled in this release.');
+      return;
+    }
+
     if (!user) {
       toast.error('Please sign in to continue.');
       return;
@@ -378,7 +392,7 @@ export function BookingsContent() {
         </p>
       </div>
 
-      {!isPremium && (
+      {billingEnabled && !isPremium && (
         <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-ocean-50 text-ocean-500 flex items-center justify-center">
@@ -386,10 +400,10 @@ export function BookingsContent() {
             </div>
             <div>
               <h2 className="text-body font-semibold text-foreground">
-                Premium required for booking requests
+                Membership checkout (v2)
               </h2>
               <p className="text-body-sm text-muted-foreground">
-                Unlock direct partner bookings, special rates, and premium-only offers.
+                Billing is prepared for a later release. Booking requests are free in this version.
               </p>
             </div>
           </div>
@@ -423,7 +437,7 @@ export function BookingsContent() {
         </section>
       )}
 
-      {isPremium && (
+      {canRequestBookings && (
         <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-4">
           <h2 className="text-body font-semibold text-foreground">Request a booking</h2>
           <div className="grid gap-3">
@@ -517,7 +531,9 @@ export function BookingsContent() {
         <section className="p-5 bg-white rounded-xl border border-cream-200 shadow-sm space-y-3">
           <h2 className="text-body font-semibold text-foreground">Need instant confirmation?</h2>
           <p className="text-body-sm text-muted-foreground">
-            For urgent reservations, call the business directly or message Calvia WhatsApp support while your request is processing.
+            {hasPendingRequests
+              ? 'For urgent reservations, call the business directly or message Calvia WhatsApp support while your request is processing.'
+              : 'Need to follow up quickly? Call the business directly or message Calvia WhatsApp support.'}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {quickCallPhone ? (
@@ -548,7 +564,7 @@ export function BookingsContent() {
 
       <section className="space-y-3">
         <h2 className="text-body font-semibold text-foreground">My bookings</h2>
-        {checkoutActivationInFlight && (
+        {billingEnabled && checkoutActivationInFlight && (
           <div className="p-3 bg-ocean-50 border border-ocean-100 rounded-lg text-[13px] text-ocean-700 flex items-center gap-2">
             <Loader2 size={14} className="animate-spin" />
             Finalizing your premium access...

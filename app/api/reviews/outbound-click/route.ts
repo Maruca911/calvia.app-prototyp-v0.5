@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { isAllowedExternalReviewUrl, type ReviewProvider } from '@/lib/external-reviews';
+import { consumeRateLimit, getRequestIp } from '@/lib/api-rate-limit';
 
 interface OutboundClickPayload {
   listingId?: string;
@@ -60,6 +61,24 @@ function asProvider(value: string | undefined): ReviewProvider | null {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getRequestIp(request);
+    const rateLimit = consumeRateLimit(`reviews-outbound:${ip}`, {
+      windowMs: 60_000,
+      max: 50,
+    });
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateLimit.retryAfterSeconds),
+          },
+        }
+      );
+    }
+
     const { user, supabase } = await getOptionalUserFromRequest(request);
     const body = (await request.json()) as OutboundClickPayload;
 

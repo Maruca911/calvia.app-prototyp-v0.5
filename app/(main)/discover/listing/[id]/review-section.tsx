@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ExternalLink, Send, Star } from 'lucide-react';
+import { ExternalLink, Loader2, Send, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { getSupabase } from '@/lib/supabase';
@@ -32,11 +32,48 @@ interface ReviewRow {
   user_id: string;
 }
 
+interface GoogleReview {
+  authorName: string;
+  rating: number;
+  relativeTimeDescription: string;
+  text: string;
+  authorUrl?: string;
+}
+
+interface GoogleReviewsPayload {
+  enabled?: boolean;
+  source?: 'google';
+  placeName?: string | null;
+  placeUrl?: string | null;
+  rating?: number | null;
+  totalRatings?: number | null;
+  reviews?: GoogleReview[];
+}
+
 function normalizeReview(review: Review): Review {
   return {
     ...review,
     comment: review.comment || review.content || '',
   };
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string') {
+      return message;
+    }
+  }
+  return '';
+}
+
+function isMissingReviewCompatColumn(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return (
+    message.includes('column') &&
+    message.includes('reviews') &&
+    (message.includes('content') || message.includes('updated_at'))
+  );
 }
 
 function byNewest(a: Review, b: Review): number {
@@ -77,55 +114,83 @@ interface ReviewSectionProps {
 export function ReviewSection({ listingId, listingName, listingAddress }: ReviewSectionProps) {
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsWarning, setReviewsWarning] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [userReview, setUserReview] = useState<Review | null>(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
+  const [googleReviewsPayload, setGoogleReviewsPayload] = useState<GoogleReviewsPayload | null>(null);
+  const [googleReviewsLoading, setGoogleReviewsLoading] = useState(false);
 
   const loadReviews = useCallback(async () => {
-    const { data, error } = await getSupabase()
+    const supabase = getSupabase();
+    let rows: ReviewRow[] = [];
+    let queryError: unknown = null;
+
+    const primary = await supabase
       .from('reviews')
       .select('id, rating, comment, content, created_at, updated_at, user_id')
       .eq('listing_id', listingId)
       .order('updated_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('[Reviews] Failed to load reviews', error);
-      toast.error('Could not load reviews.');
+    if (primary.error && isMissingReviewCompatColumn(primary.error)) {
+      const fallback = await supabase
+        .from('reviews')
+        .select('id, rating, comment, created_at, user_id')
+        .eq('listing_id', listingId)
+        .order('created_at', { ascending: false });
+      if (fallback.error) {
+        queryError = fallback.error;
+      } else {
+        rows = (fallback.data || []) as ReviewRow[];
+      }
+    } else if (primary.error) {
+      queryError = primary.error;
+    } else {
+      rows = (primary.data || []) as ReviewRow[];
+    }
+
+    if (queryError) {
+      console.error('[Reviews] Failed to load reviews', queryError);
+      const message = getErrorMessage(queryError).toLowerCase();
+      if (message.includes('relation') && message.includes('reviews')) {
+        setReviewsWarning('Reviews are being configured in this environment.');
+      } else {
+        setReviewsWarning('Reviews are temporarily unavailable.');
+      }
+      setReviews([]);
       return;
     }
 
-    if (data) {
-      const rows = (data || []) as ReviewRow[];
-      const profileNameMap = await loadProfileNameMap(
-        Array.from(new Set(rows.map((row) => row.user_id).filter(Boolean)))
-      );
+    setReviewsWarning(null);
+    const profileNameMap = await loadProfileNameMap(
+      Array.from(new Set(rows.map((row) => row.user_id).filter(Boolean)))
+    );
 
-      const normalized = rows
-        .map((row) =>
-          normalizeReview({
-            ...row,
-            profiles: profileNameMap[row.user_id]
-              ? { full_name: profileNameMap[row.user_id] }
-              : null,
-          })
-        )
-        .sort(byNewest);
-      setReviews(normalized);
-      if (user) {
-        const mine = normalized.find((r) => r.user_id === user.id);
-        if (mine) {
-          setUserReview(mine);
-          setRating(mine.rating);
-          setComment(mine.comment);
-        } else {
-          setUserReview(null);
-          setRating(0);
-          setComment('');
-        }
+    const normalized = rows
+      .map((row) =>
+        normalizeReview({
+          ...row,
+          profiles: profileNameMap[row.user_id]
+            ? { full_name: profileNameMap[row.user_id] }
+            : null,
+        })
+      )
+      .sort(byNewest);
+    setReviews(normalized);
+    if (user) {
+      const mine = normalized.find((r) => r.user_id === user.id);
+      if (mine) {
+        setUserReview(mine);
+        setRating(mine.rating);
+        setComment(mine.comment);
+      } else {
+        setUserReview(null);
+        setRating(0);
+        setComment('');
       }
     }
   }, [listingId, user]);
@@ -156,6 +221,52 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
       void supabase.removeChannel(channel);
     };
   }, [listingId, loadReviews]);
+
+  useEffect(() => {
+    if (!listingName?.trim()) {
+      setGoogleReviewsPayload(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const loadGoogleReviews = async () => {
+      setGoogleReviewsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('name', listingName.trim());
+        if (listingAddress?.trim()) {
+          params.set('address', listingAddress.trim());
+        }
+        params.set('limit', '3');
+
+        const response = await fetch(`/api/reviews/google?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          setGoogleReviewsPayload(null);
+          return;
+        }
+
+        const payload = (await response.json()) as GoogleReviewsPayload;
+        if (!payload.enabled) {
+          setGoogleReviewsPayload(null);
+          return;
+        }
+        setGoogleReviewsPayload(payload);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          console.warn('[Reviews] Failed to load Google reviews', error);
+        }
+        setGoogleReviewsPayload(null);
+      } finally {
+        setGoogleReviewsLoading(false);
+      }
+    };
+
+    void loadGoogleReviews();
+    return () => controller.abort();
+  }, [listingAddress, listingName]);
 
   const trackExternalReviewClick = async (provider: 'google' | 'tripadvisor', destinationUrl: string) => {
     try {
@@ -218,7 +329,11 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
     setJustSubmitted(false);
 
     try {
-      const { data, error } = await getSupabase()
+      const supabase = getSupabase();
+      let data: ReviewRow | null = null;
+      let writeError: unknown = null;
+
+      const primaryWrite = await supabase
         .from('reviews')
         .upsert(
           {
@@ -234,12 +349,38 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
         .select('id, rating, comment, content, created_at, updated_at, user_id')
         .single();
 
-      if (error || !data) {
-        throw error || new Error('Unknown review write error');
+      if (primaryWrite.error && isMissingReviewCompatColumn(primaryWrite.error)) {
+        const fallbackWrite = await supabase
+          .from('reviews')
+          .upsert(
+            {
+              listing_id: listingId,
+              user_id: user.id,
+              rating,
+              comment,
+            },
+            { onConflict: 'user_id,listing_id' }
+          )
+          .select('id, rating, comment, created_at, user_id')
+          .single();
+
+        if (fallbackWrite.error || !fallbackWrite.data) {
+          writeError = fallbackWrite.error || new Error('Unknown review write error');
+        } else {
+          data = fallbackWrite.data as ReviewRow;
+        }
+      } else if (primaryWrite.error || !primaryWrite.data) {
+        writeError = primaryWrite.error || new Error('Unknown review write error');
+      } else {
+        data = primaryWrite.data as ReviewRow;
+      }
+
+      if (!data || writeError) {
+        throw writeError || new Error('Unknown review write error');
       }
 
       const savedReview = normalizeReview({
-        ...(data as ReviewRow),
+        ...data,
         profiles: previousUserReview?.profiles || { full_name: user.email || 'Calvia Member' },
       });
       setReviews((prev) => {
@@ -332,6 +473,12 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
         </div>
       </div>
 
+      {reviewsWarning && (
+        <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-[13px] text-amber-900">
+          {reviewsWarning}
+        </div>
+      )}
+
       {user && (userReview || justSubmitted) && (
         <div className="p-4 bg-cream-50 rounded-xl border border-cream-200 space-y-2">
           <p className="text-body-sm font-medium text-foreground">
@@ -362,6 +509,64 @@ export function ReviewSection({ listingId, listingName, listingAddress }: Review
               <ExternalLink size={14} />
             </Button>
           </div>
+        </div>
+      )}
+
+      {googleReviewsLoading && (
+        <div className="p-3 bg-white rounded-xl border border-cream-200 text-[13px] text-muted-foreground flex items-center gap-2">
+          <Loader2 size={14} className="animate-spin" />
+          Loading Google reviews...
+        </div>
+      )}
+
+      {googleReviewsPayload?.reviews && googleReviewsPayload.reviews.length > 0 && (
+        <div className="p-4 bg-white rounded-xl border border-cream-200 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-body-sm font-semibold text-foreground">Google reviews</p>
+              {(googleReviewsPayload.rating || googleReviewsPayload.totalRatings) && (
+                <p className="text-[12px] text-muted-foreground">
+                  {googleReviewsPayload.rating ? `${googleReviewsPayload.rating.toFixed(1)} stars` : null}
+                  {googleReviewsPayload.totalRatings ? ` • ${googleReviewsPayload.totalRatings} ratings` : ''}
+                </p>
+              )}
+            </div>
+            {googleReviewsPayload.placeUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-cream-300"
+                onClick={() => openExternalReview('google', googleReviewsPayload.placeUrl || '')}
+              >
+                Open in Google
+                <ExternalLink size={13} className="ml-1.5" />
+              </Button>
+            )}
+          </div>
+          <div className="space-y-2">
+            {googleReviewsPayload.reviews.map((googleReview, index) => (
+              <article key={`${googleReview.authorName}-${index}`} className="rounded-lg border border-cream-200 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{googleReview.authorName}</p>
+                  <div className="inline-flex items-center gap-1 text-[12px] text-amber-600">
+                    <Star size={12} fill="currentColor" />
+                    <span>{googleReview.rating}</span>
+                  </div>
+                </div>
+                {googleReview.relativeTimeDescription && (
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{googleReview.relativeTimeDescription}</p>
+                )}
+                {googleReview.text && (
+                  <p className="text-[13px] text-foreground/80 leading-relaxed mt-1 line-clamp-3">
+                    {googleReview.text}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Source: Google public reviews. Moderation and ownership remain with Google.
+          </p>
         </div>
       )}
 

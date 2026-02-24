@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | Calvia.app',
-  description: 'Terms of service for Calvia.app users, premium members, and partner businesses.',
+  description: 'Terms of service for Calvia.app users and partner businesses.',
   alternates: {
     canonical: '/terms',
   },
@@ -20,11 +20,11 @@ export default function TermsPage() {
 
         <section className="rounded-xl border border-cream-200 bg-white p-5 space-y-3">
           <p className="text-body-sm text-muted-foreground">
-            By using Calvia.app, you agree to the platform terms for discovery, bookings, and membership features.
+            By using Calvia.app, you agree to the platform terms for discovery and booking support features.
           </p>
           <p className="text-body-sm text-muted-foreground">
-            Premium subscriptions renew automatically unless cancelled. Pricing, taxes, and billing are handled through
-            Stripe according to the selected plan.
+            Calvia.app is currently provided in free-access mode. If paid plans are introduced in a future release,
+            updated pricing and billing terms will be published before activation.
           </p>
           <p className="text-body-sm text-muted-foreground">
             Business partners are responsible for availability accuracy, booking confirmations, and service delivery.
